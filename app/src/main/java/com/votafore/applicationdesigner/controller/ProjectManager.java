@@ -37,6 +37,9 @@ public class ProjectManager {
 
     Block mRootBlock;
 
+    float mX;
+    float mY;
+
     private String TAG = "MyEvent";
 
     public ProjectManager(Context ctx, int id){
@@ -45,19 +48,38 @@ public class ProjectManager {
         mRenderer = new OpenGLRenderer(mContext);
 
         mRootBlock = new BlockScene();
-        mRootBlock.setID(id);
+        mRootBlock.setProjectID(id);
 
-//        ProjectLoader loader = new ProjectLoader(mContext, mRootBlock);
-//        loader.execute();
+        //ProjectLoader loader = new ProjectLoader(mContext, this);
+        //loader.execute(mRootBlock);
     }
 
 
+    /**
+     * обработка окончания загрузки данных проекта
+     */
+    public void onLoadComplete(Block block){
+
+        mRootBlock = block;
+
+        // какие-нибудь дополнительные вычисления данных проекта
+        // ...
+
+        // устанавливаем дерево объектов в рендерер для отбражения
+        Runnable setBlock = new Runnable() {
+            @Override
+            public void run() {
+                mRenderer.setBlocks(mRootBlock);
+            }
+        };
+        setBlock.run();
+
+    }
 
 
     /**
      * УПРАВЛЕНИЕ RENDERER ом
      * */
-
     public Renderer getRenderer(){
         return mRenderer;
     }
@@ -65,55 +87,82 @@ public class ProjectManager {
 
     /**
      * ОБРАБОТКА СОБЫТИЙ ВВОДА
-     * @param event
+     * @param
      */
+    public void onTouchEvent(final MotionEvent event) {
 
-    public void onTouchEvent(MotionEvent event) {
         switch(event.getAction()){
             case MotionEvent.ACTION_MOVE:
-                Log.d(TAG, "action move");
+                Log.d(TAG, "action move new X:" + String.valueOf(event.getX()) + " new Y:"+String.valueOf(event.getY()));
+                Log.d(TAG, "delta X:" + String.valueOf(mX - event.getX()) + " delta Y:"+String.valueOf(mY - event.getY()));
                 break;
             case MotionEvent.ACTION_DOWN:
-                Log.d(TAG, "action down");
-                break;
+                Log.d(TAG, "action down X:" + String.valueOf(event.getX()) + " Y:"+String.valueOf(event.getY()));
+                mX = event.getX();
+                mY = event.getY();
+                return;
             case MotionEvent.ACTION_UP:
                 Log.d(TAG, "action up");
         }
+
+        Runnable setData = new Runnable() {
+            @Override
+            public void run() {
+
+                mRenderer.setZ((mY - event.getY())/100);
+                mRenderer.setX((event.getX() - mX)/100);
+            }
+        };
+
+        setData.run();
+
+        mX = event.getX();
+        mY = event.getY();
     }
 
 
     // ЗАГРУЗКА ДАННЫХ ПРОЕКТА
-    private class ProjectLoader extends AsyncTask<Void, Integer, Void>{
-
-        private final Block mRoot;
+    private class ProjectLoader extends AsyncTask<Block, Integer, Block>{
 
         Context mContext;
 
         DataBase db;
 
+        ProjectManager mManager;
+
         private int count;
         private int countAll;
 
-        public ProjectLoader(Context ctx, Block rootBlock) {
+        public ProjectLoader(Context ctx, ProjectManager manager) {
             super();
 
             mContext    = ctx;
-            mRoot       = rootBlock;
+            mManager    = manager;
+
             db          = new DataBase(mContext);
 
             count = 0;
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Block doInBackground(Block... params) {
 
-            countAll = db.getAllDataCount(mRoot.getID());
+            countAll = db.getAllDataCount(params[0].getProjectID());
 
-            loadBranch(mRoot);
+            loadBranch(params[0]);
 
             db.close();
 
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Block block) {
+
+            if(isCancelled())
+                return;
+
+            mManager.onLoadComplete(block);
         }
 
         @Override
@@ -122,11 +171,9 @@ public class ProjectManager {
             Log.d(TAG, "загружено " + String.valueOf(values) + "%");
         }
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
 
-        }
+
+
 
         private void loadBranch(Block curBlock){
 

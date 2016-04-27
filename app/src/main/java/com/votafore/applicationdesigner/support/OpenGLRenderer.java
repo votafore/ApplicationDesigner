@@ -59,8 +59,28 @@ public class OpenGLRenderer implements Renderer{
     private Block   mRootBlock; // содержит корневой объект сцены
     private float[] myVertices; // массив вершин для отрисовки объектов
 
+    float eyeX;
+    float eyeY;
+    float eyeZ;
+
+    float deltaX;
+
+    float angle;
+
+    float radius;
+
     public OpenGLRenderer(Context context) {
         this.context = context;
+
+        mRootBlock = null;
+
+        eyeX = 3f;
+        eyeY = 1f;
+        eyeZ = 3f;
+
+        deltaX = 0f;
+
+        radius = 4f;
     }
 
 
@@ -95,6 +115,9 @@ public class OpenGLRenderer implements Renderer{
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        if(mRootBlock ==  null)
+            return;
+
         drawBlock(mRootBlock, 0);
     }
 
@@ -110,8 +133,8 @@ public class OpenGLRenderer implements Renderer{
         float right = 1;
         float bottom = -1;
         float top = 1;
-        float near = 2;
-        float far = 8;
+        float near = 1;
+        float far = 16;
         if (width > height) {
             ratio = (float) width / height;
             left *= ratio;
@@ -127,13 +150,13 @@ public class OpenGLRenderer implements Renderer{
 
     private void createViewMatrix() {
 
-        float time = (float)(SystemClock.uptimeMillis() % TIME) / TIME;
-        float angle = time  *  2 * 3.1415926f;
+//        float time = (float)(SystemClock.uptimeMillis() % TIME) / TIME;
+//        float angle = time  *  2 * 3.1415926f;
 
-        // точка положения камеры
-        float eyeX = 4f;//(float) (Math.cos(angle) * 4f);
-        float eyeY = 1f;
-        float eyeZ = 4f;//(float) (Math.sin(angle) * 4f);
+//        // точка положения камеры
+//        float eyeX = 4f;//(float) (Math.cos(angle) * 4f);
+//        float eyeY = 1f;
+//        float eyeZ = 4f;//(float) (Math.sin(angle) * 4f);
 
         // точка направления камеры
         float centerX = 0;
@@ -233,6 +256,22 @@ public class OpenGLRenderer implements Renderer{
 
             drawBlock(curBlock, counter);
         }
+    }
+
+
+
+
+    public void setX(float deltaX){
+        this.deltaX += deltaX;
+
+        angle = ((this.deltaX % 25) / 25)  *  2 * 3.1415926f;
+
+        eyeX = (float) (Math.cos(angle) * radius);
+        eyeZ = (float) (Math.sin(angle) * radius);
+    }
+
+    public void setZ(float deltaZ){
+        radius += deltaZ;
     }
 
 }
