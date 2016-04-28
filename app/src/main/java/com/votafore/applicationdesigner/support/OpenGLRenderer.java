@@ -3,6 +3,8 @@ package com.votafore.applicationdesigner.support;
 import android.content.Context;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
+import android.util.Log;
+import android.view.MotionEvent;
 
 import com.votafore.applicationdesigner.glsupport.ShaderUtils;
 import com.votafore.applicationdesigner.R;
@@ -45,6 +47,8 @@ public class OpenGLRenderer implements Renderer{
 
     private Context context;
 
+    private String TAG = "MyEvent";
+
 
     // ДАННЫЕ ДЛЯ ШЕЙДЕРОВ
     private int uColorLocation;
@@ -67,6 +71,9 @@ public class OpenGLRenderer implements Renderer{
     float deltaX;
     float angle;
     float radius;
+
+    float mX;
+    float mY;
 
     // ДАННЫЕ ОБЪЕКТОВ
     private Block   mRootBlock; // содержит корневой объект сцены
@@ -251,20 +258,37 @@ public class OpenGLRenderer implements Renderer{
         prepareData();
     }
 
-    public void setX(float deltaX){
-        this.deltaX += deltaX;
+    public void onTouchEvent(MotionEvent event){
 
+        switch(event.getAction()){
+            case MotionEvent.ACTION_MOVE:
+//                Log.d(TAG, "action move new X:" + String.valueOf(event.getX()) + " new Y:"+String.valueOf(event.getY()));
+//                Log.d(TAG, "delta X:" + String.valueOf(mX - event.getX()) + " delta Y:"+String.valueOf(mY - event.getY()));
+                break;
+            case MotionEvent.ACTION_DOWN:
+//                Log.d(TAG, "action down X:" + String.valueOf(event.getX()) + " Y:"+String.valueOf(event.getY()));
+                mX = event.getX();
+                mY = event.getY();
+                return;
+            case MotionEvent.ACTION_UP:
+                //Log.d(TAG, "action up");
+        }
+
+        Log.d(TAG, "delta X:" + String.valueOf((event.getX() - mX)/100) + " delta Y:"+String.valueOf((mY - event.getY())/100));
+
+        // устанавливаем расстояние камеры
+        radius += (mY - event.getY())/100;
+
+        // устанавливаем угол поворота (место просмотра) для камеры
+        this.deltaX += (event.getX() - mX)/100;
         angle = ((this.deltaX % 25) / 25)  *  2 * 3.1415926f;
 
         eyeX = (float) (Math.cos(angle) * radius);
         eyeZ = (float) (Math.sin(angle) * radius);
+
+        mX = event.getX();
+        mY = event.getY();
     }
-
-    public void setZ(float deltaZ){
-        radius += deltaZ;
-    }
-
-
 
 
 

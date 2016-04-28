@@ -2,7 +2,11 @@ package com.votafore.applicationdesigner.support;
 
 
 import android.content.Context;
+import android.graphics.PixelFormat;
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 
 import com.votafore.applicationdesigner.controller.ProjectManager;
@@ -13,6 +17,8 @@ public class CustomGLSurfaceView extends GLSurfaceView{
 
     private ProjectManager mManager;
 
+    private OpenGLRenderer mRenderer;
+
     public CustomGLSurfaceView(Context ctx, int projectID){
         super(ctx);
         mContext = ctx;
@@ -20,16 +26,27 @@ public class CustomGLSurfaceView extends GLSurfaceView{
         // создаем "управляющего" для работы с проектом
         mManager = new ProjectManager(mContext, projectID);
 
-        // настрока вьюхи
+        // настрйока вьюхи
         setEGLContextClientVersion(2);
-        setRenderer(mManager.getRenderer());
-        //setRenderMode(RENDERMODE_WHEN_DIRTY);
+        getHolder().setFormat(PixelFormat.RGBA_8888);
+        setEGLConfigChooser(new Config3D());
+
+        mRenderer = mManager.getRenderer();
+
+        setRenderer(mRenderer);
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(final MotionEvent event) {
         super.onTouchEvent(event);
-        mManager.onTouchEvent(event);
+
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mRenderer.onTouchEvent(event);
+            }
+        });
+
         return true;
     }
 }

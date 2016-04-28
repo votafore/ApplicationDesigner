@@ -37,9 +37,6 @@ public class ProjectManager {
 
     Block mRootBlock;
 
-    float mX;
-    float mY;
-
     private String TAG = "MyEvent";
 
     public ProjectManager(Context ctx, int id){
@@ -79,44 +76,8 @@ public class ProjectManager {
     /**
      * УПРАВЛЕНИЕ RENDERER ом
      * */
-    public Renderer getRenderer(){
+    public OpenGLRenderer getRenderer(){
         return mRenderer;
-    }
-
-
-    /**
-     * ОБРАБОТКА СОБЫТИЙ ВВОДА
-     * @param
-     */
-    public void onTouchEvent(final MotionEvent event) {
-
-        switch(event.getAction()){
-            case MotionEvent.ACTION_MOVE:
-                Log.d(TAG, "action move new X:" + String.valueOf(event.getX()) + " new Y:"+String.valueOf(event.getY()));
-                Log.d(TAG, "delta X:" + String.valueOf(mX - event.getX()) + " delta Y:"+String.valueOf(mY - event.getY()));
-                break;
-            case MotionEvent.ACTION_DOWN:
-                Log.d(TAG, "action down X:" + String.valueOf(event.getX()) + " Y:"+String.valueOf(event.getY()));
-                mX = event.getX();
-                mY = event.getY();
-                return;
-            case MotionEvent.ACTION_UP:
-                Log.d(TAG, "action up");
-        }
-
-        Runnable setData = new Runnable() {
-            @Override
-            public void run() {
-
-                mRenderer.setZ((mY - event.getY())/100);
-                mRenderer.setX((event.getX() - mX)/100);
-            }
-        };
-
-        setData.run();
-
-        mX = event.getX();
-        mY = event.getY();
     }
 
 

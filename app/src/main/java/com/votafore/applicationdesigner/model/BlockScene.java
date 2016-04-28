@@ -38,7 +38,7 @@ public class BlockScene extends Block {
 
     @Override
     public float[] getColor() {
-        return new float[]{0.0f, 0.0f, 1.0f, 1.0f};
+        return new float[]{0.0f, 0.0f, 1.0f, 0.4f};
     }
 
     @Override
