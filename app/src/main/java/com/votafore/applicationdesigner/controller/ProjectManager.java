@@ -43,7 +43,6 @@ public class ProjectManager {
     private String TAG = "MyEvent";
 
     public ProjectManager(Context ctx, int id){
-
         mContext = ctx;
         mRenderer = new OpenGLRenderer(mContext);
 

@@ -4,8 +4,7 @@ import static android.opengl.GLES20.GL_TRIANGLE_STRIP;
 
 public class BlockActivity extends Block {
 
-    @Override
-    public float[] getVertices() {
+    public BlockActivity(){
 
         // x
         float right = 0.0f;
@@ -24,7 +23,10 @@ public class BlockActivity extends Block {
                 right, bottom, back,
                 left, bottom, back
         };
+    }
 
+    @Override
+    public float[] getVertices() {
         return vertices;
     }
 

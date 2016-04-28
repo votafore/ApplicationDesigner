@@ -11,7 +11,7 @@ public abstract class Block {
 
     protected List<Block> mChilds;
 
-    protected final int POSITION_COUNT = 3; // говорим что для описания одной вершины надо 3 float значения
+    public static int POSITION_COUNT = 3; // говорим что для описания одной вершины надо 3 float значения
     protected float[] vertices;
 
     protected int mID;        // ИД этого объекта в базе данных

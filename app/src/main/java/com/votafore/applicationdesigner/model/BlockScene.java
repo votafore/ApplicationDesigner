@@ -12,8 +12,7 @@ import static android.opengl.GLES20.GL_TRIANGLE_STRIP;
 
 public class BlockScene extends Block {
 
-    @Override
-    public float[] getVertices() {
+    public BlockScene(){
 
         float hight = 0.4f;
 
@@ -30,7 +29,10 @@ public class BlockScene extends Block {
                 left, hight, front,
                 right, hight, front
         };
+    }
 
+    @Override
+    public float[] getVertices() {
         return vertices;
     }
 
