@@ -3,26 +3,116 @@ package com.votafore.applicationdesigner.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.opengl.GLES20.GL_TRIANGLE_STRIP;
+
 /**
  * класс, объект которого содержит информацию по конкретному объекту проекта
  * будь то какой-либо раздел или элемент списка
  */
 public abstract class Block {
 
-    protected List<Block> mChilds;
-
-    public static int POSITION_COUNT = 3; // говорим что для описания одной вершины надо 3 float значения
-    public static int COLOR_COUNT = 4; // говорим что для описания цвета вершины надо 4 float значения
-    protected float[] vertices;
-
-    protected int mID;        // ИД этого объекта в базе данных
-    protected int mProjectID; // ИД проекта к которому принадлежит объект
-    protected int mParentID;  // ИД объекта "Родителя"
-
-
     public Block(){
         mChilds = new ArrayList<>();
+
+        mMode = GL_TRIANGLE_STRIP;
     }
+
+
+
+    /**
+     * РАЗДЕЛ: СТРУКТУРА СЦЕНЫ
+     * mChild содержит в себе список подчиненных объктов
+     * Это могут быть:
+     * - классы
+     * - логические блоки
+     * - что-то другое, что можно считать отдельным элементом программы или ее алгоритма
+     */
+    protected List<Block> mChilds;
+
+
+    public List<Block> getChilds(){
+        return mChilds;
+    }
+
+    public void addChild(Block child){
+        mChilds.add(child);
+    }
+
+    public void removeChild(int position){
+        mChilds.remove(position);
+    }
+
+    public void removeChild(Block item){
+        mChilds.remove(item);
+    }
+
+
+
+
+
+
+
+
+    /**
+     * РАЗДЕЛ: ОТОБРАЖЕНИЕ (РЕНДЕРИНГ)
+     * этот раздел содержит в себе объекты, необходимые для
+     * настройки отображения объекта на 3D сцене
+     *
+     * POSITION_COUNT - количество значений (float) которые задают координаты вершины
+     *      в данном случае координаты вершины задаются тремя значениями
+     *
+     * COLOR_COUNT - количество значений (float) которые задают цвет вершины
+     *
+     * vertices - float массив в котором находятся координаты вершин объекта
+     *
+     * mMode - режим рисования вершин
+     *      по умолчанию стоит GL_TRIANGLE_STRIP
+     *      инициализируется в конструкторе
+     */
+    public static int POSITION_COUNT = 3;
+    public static int COLOR_COUNT = 4;
+    protected float[] mVertices;
+    protected int mMode;
+
+
+    /**
+     * @return массив с координатами вершин текущего объекта (тем самым определяя его форму)
+     */
+    public abstract float[] getVertices();
+
+    /**
+     * @return тип примитива, которым рисуется объект
+     */
+    public int getMode(){
+        return mMode;
+    }
+
+    /**
+     * @return количество вершин, необходимых для отрисовки объекта
+     */
+    public int getVertexCount(){
+        return mVertices.length / (POSITION_COUNT + COLOR_COUNT);
+    }
+
+
+
+
+
+
+    /**
+     * РАЗДЕЛ: ХРАНЕНИЕ В БАЗЕ ДАННЫХ
+     * В данном разделе содержатся переменные, необходимые для
+     * записи\чтения информации о проекте в\из базы данных
+     *
+     * mID          - ID объекта в базе данных
+     * mProjectID   - ID проекта в котором находится объект
+     * mParentID    - ID объекта "родителя"
+     */
+    protected int mID;
+    protected int mProjectID;
+    protected int mParentID;
+
+
 
     public int getID(){
         return mID;
@@ -47,59 +137,4 @@ public abstract class Block {
     public void setProjectID(int mProjectID) {
         this.mProjectID = mProjectID;
     }
-
-
-
-
-
-
-
-
-    //////////////////////////////////////////////
-    // процедуры управления структурой
-
-    public List<Block> getChilds(){
-        return mChilds;
-    }
-
-    public void addChild(Block child){
-        mChilds.add(child);
-    }
-
-    public void removeChild(int position){
-        mChilds.remove(position);
-    }
-
-    public void removeChild(Block item){
-        mChilds.remove(item);
-    }
-
-
-
-    //////////////////////////////////////////////
-    // процедуры управления отображением объекта
-
-    /**
-     * функция возвращает массив с координатами текущего объекта
-     * тем самым определяя его форму
-     *
-     * @return
-     */
-    public abstract float[] getVertices();
-
-    /**
-     * функция возвращает цвет объекта
-     */
-    public abstract float[] getColor();
-
-    /**
-     * функция возвращает тип примитива, которым рисуется объект
-     */
-    public abstract int getMode();
-
-    /**
-     * функция возвращает количество вершин, необходимых для
-     * отрисовки объекта
-     */
-    public abstract int getVertexCount();
 }
