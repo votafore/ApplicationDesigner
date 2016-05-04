@@ -6,6 +6,8 @@ public class BlockActivity extends Block {
 
     public BlockActivity(){
 
+        float[] color = new float[]{0.0f, 1.0f, 0.0f, 0.5f};
+
         // x
         float right = 0.0f;
         float left = 0.5f;
@@ -18,10 +20,10 @@ public class BlockActivity extends Block {
         float back = 0.0f;
 
         vertices = new float[]{
-                right, top, back,
-                left, top, back,
-                right, bottom, back,
-                left, bottom, back
+                right, top, back,       color[0], color[1], color[2], color[3],
+                left, top, back,        color[0], color[1], color[2], color[3],
+                right, bottom, back,    color[0], color[1], color[2], color[3],
+                left, bottom, back,     color[0], color[1], color[2], color[3]
         };
     }
 
@@ -42,6 +44,6 @@ public class BlockActivity extends Block {
 
     @Override
     public int getVertexCount() {
-        return vertices.length / POSITION_COUNT;
+        return vertices.length / (POSITION_COUNT+COLOR_COUNT);
     }
 }

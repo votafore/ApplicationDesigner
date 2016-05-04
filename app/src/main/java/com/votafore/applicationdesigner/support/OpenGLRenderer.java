@@ -1,6 +1,7 @@
 package com.votafore.applicationdesigner.support;
 
 import android.content.Context;
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
 import android.util.Log;
@@ -20,15 +21,12 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import static android.opengl.GLES20.GL_ALPHA;
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.GL_DEPTH_BUFFER_BIT;
 import static android.opengl.GLES20.GL_DEPTH_TEST;
 import static android.opengl.GLES20.GL_FLOAT;
 import static android.opengl.GLES20.GL_FRAGMENT_SHADER;
 import static android.opengl.GLES20.GL_VERTEX_SHADER;
-import static android.opengl.GLES20.GL_ONE_MINUS_SRC_ALPHA;
-import static android.opengl.GLES20.GL_BLEND;
 import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glEnable;
 import static android.opengl.GLES20.glClearColor;
@@ -36,12 +34,12 @@ import static android.opengl.GLES20.glDrawArrays;
 import static android.opengl.GLES20.glEnableVertexAttribArray;
 import static android.opengl.GLES20.glGetAttribLocation;
 import static android.opengl.GLES20.glGetUniformLocation;
+import static android.opengl.GLES20.glLineWidth;
 import static android.opengl.GLES20.glUniform4f;
 import static android.opengl.GLES20.glUniformMatrix4fv;
 import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES20.glVertexAttribPointer;
 import static android.opengl.GLES20.glViewport;
-import static android.opengl.GLES20.glBlendFunc;
 
 public class OpenGLRenderer implements Renderer{
 
@@ -51,7 +49,7 @@ public class OpenGLRenderer implements Renderer{
 
 
     // ДАННЫЕ ДЛЯ ШЕЙДЕРОВ
-    private int uColorLocation;
+    private int aColorLocation;
     private int aPositionLocation;
     private int uMatrixLocation;
     private int programId;
@@ -63,7 +61,7 @@ public class OpenGLRenderer implements Renderer{
     private float[] mMatrix             = new float[16];
 
 
-    // ДАННЫЕ ДЛЯ УПРАВЛЕНИЯ ПОЛОЖЕНИЕМ КАМЕРЫ
+//    // ДАННЫЕ ДЛЯ УПРАВЛЕНИЯ ПОЛОЖЕНИЕМ КАМЕРЫ
     float eyeX;
     float eyeY;
     float eyeZ;
@@ -76,8 +74,8 @@ public class OpenGLRenderer implements Renderer{
     float mY;
 
     // ДАННЫЕ ОБЪЕКТОВ
-    private Block   mRootBlock; // содержит корневой объект сцены
-    private float[] myVertices; // массив вершин для отрисовки объектов
+    private Block   mRootBlock;     // содержит корневой объект сцены
+    private float[] vertices;       // массив вершин для отрисовки объектов
     private FloatBuffer vertexData; // буфер вершин
 
 
@@ -98,6 +96,8 @@ public class OpenGLRenderer implements Renderer{
 
         eyeX = (float) (Math.cos(angle) * radius);
         eyeZ = (float) (Math.sin(angle) * radius);
+
+        prepareData();
     }
 
 
@@ -105,8 +105,8 @@ public class OpenGLRenderer implements Renderer{
 
     @Override
     public void onSurfaceCreated(GL10 arg0, EGLConfig arg1) {
-        glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
-        glEnable(GL_DEPTH_TEST);
+        glClearColor(0.5f, 0.5f, 0.5f, 1f);
+        //glEnable(GL_DEPTH_TEST);
 
         int vertexShaderId      = ShaderUtils.createShader(context, GL_VERTEX_SHADER   , R.raw.vertex_shader);
         int fragmentShaderId    = ShaderUtils.createShader(context, GL_FRAGMENT_SHADER , R.raw.fragment_shader);
@@ -116,7 +116,7 @@ public class OpenGLRenderer implements Renderer{
 
         createViewMatrix();
 
-        prepareData();
+        //prepareData();
         bindData();
     }
 
@@ -125,11 +125,9 @@ public class OpenGLRenderer implements Renderer{
     public void onSurfaceChanged(GL10 arg0, int width, int height) {
         glViewport(0, 0, width, height);
 
-        glBlendFunc(GL_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glEnable(GL_BLEND);
-
         createProjectionMatrix(width, height);
         bindMatrix();
+
     }
 
 
@@ -145,13 +143,16 @@ public class OpenGLRenderer implements Renderer{
             return;
 
         drawBlock(mRootBlock, 0);
+
+//        glLineWidth(5);
+//        glDrawArrays(GLES20.GL_TRIANGLES, 0, 3);
     }
 
 
     private void drawBlock(Block block, int counter){
 
-        float[] color = block.getColor();
-        glUniform4f(uColorLocation, color[0], color[1], color[2], color[3]);
+//        float[] color = block.getColor();
+//        glUniform4f(aColorLocation, color[0], color[1], color[2], color[3]);
         glDrawArrays(block.getMode(), counter, block.getVertexCount());
 
         counter += block.getVertexCount();
@@ -173,29 +174,50 @@ public class OpenGLRenderer implements Renderer{
         mRootBlock.addChild(new BlockActivity());
 
         int count = getVertexCount(mRootBlock);
-        myVertices = new float[count];
+        vertices = new float[count];
 
         toVertices(mRootBlock, 0);
 
+//        float[] color = new float[]{0.0f, 0.0f, 1.0f, 1.0f};
+//
+//        float hight = 0.4f;
+//
+//        float right = 1.0f;
+//        float left = -1.0f;
+//
+//        float front = 0.5f;
+//        float back = -0.5f;
+//
+//        float[] vertices = new float[]{
+//                // X, Y, Z          цвета вершин
+//                left, hight,       color[0], color[1], color[2],
+//                right, hight,      color[0], color[1], color[2],
+//                left, hight,      color[0], color[1], color[2],
+//                right, hight,     color[0], color[1], color[2]
+//        };
+
         vertexData = ByteBuffer
-                .allocateDirect(myVertices.length * 4)
+                .allocateDirect(vertices.length * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
-        vertexData.put(myVertices);
+        vertexData.put(vertices);
     }
 
     private void bindData() {
+
+        aPositionLocation   = glGetAttribLocation(programId, "a_Position");
+        aColorLocation      = glGetAttribLocation(programId, "a_Color");
+        uMatrixLocation     = glGetUniformLocation(programId, "u_Matrix");
+
         // примитивы
-        aPositionLocation = glGetAttribLocation(programId, "a_Position");
         vertexData.position(0);
-        glVertexAttribPointer(aPositionLocation, Block.POSITION_COUNT, GL_FLOAT, false, 0, vertexData);
+        glVertexAttribPointer(aPositionLocation, Block.POSITION_COUNT, GL_FLOAT, false, (Block.POSITION_COUNT + Block.COLOR_COUNT)*4, vertexData);
         glEnableVertexAttribArray(aPositionLocation);
 
         // цвет
-        uColorLocation = glGetUniformLocation(programId, "u_Color");
-
-        // матрица
-        uMatrixLocation = glGetUniformLocation(programId, "u_Matrix");
+        vertexData.position(Block.POSITION_COUNT);
+        glVertexAttribPointer(aColorLocation, Block.COLOR_COUNT, GL_FLOAT, false, (Block.POSITION_COUNT + Block.COLOR_COUNT)*4, vertexData);
+        glEnableVertexAttribArray(aColorLocation);
     }
 
     private void createProjectionMatrix(int width, int height) {
@@ -226,7 +248,7 @@ public class OpenGLRenderer implements Renderer{
 //        float time = (float)(SystemClock.uptimeMillis() % TIME) / TIME;
 //        float angle = time  *  2 * 3.1415926f;
 
-//        // точка положения камеры
+        // точка положения камеры
 //        float eyeX = 4f;//(float) (Math.cos(angle) * 4f);
 //        float eyeY = 1f;
 //        float eyeZ = 4f;//(float) (Math.sin(angle) * 4f);
@@ -301,7 +323,7 @@ public class OpenGLRenderer implements Renderer{
         // добавляем новые элементы
         for(float item: objVertices){
 
-            myVertices[count] = item;
+            vertices[count] = item;
             count++;
         }
 

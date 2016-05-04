@@ -40,19 +40,19 @@ public class ActivityProject extends AppCompatActivity {
             return;
         }
 
-        int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
-        int newUiOptions = uiOptions;
-
-        if (Build.VERSION.SDK_INT >= 14)
-            newUiOptions ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-
-        if (Build.VERSION.SDK_INT >= 16)
-            newUiOptions ^= View.SYSTEM_UI_FLAG_FULLSCREEN;
-
-        if (Build.VERSION.SDK_INT >= 18)
-            newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-
-        getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
+//        int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
+//        int newUiOptions = uiOptions;
+//
+//        if (Build.VERSION.SDK_INT >= 14)
+//            newUiOptions ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+//
+//        if (Build.VERSION.SDK_INT >= 16)
+//            newUiOptions ^= View.SYSTEM_UI_FLAG_FULLSCREEN;
+//
+//        if (Build.VERSION.SDK_INT >= 18)
+//            newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+//
+//        getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
 
         Intent i = getIntent();
 

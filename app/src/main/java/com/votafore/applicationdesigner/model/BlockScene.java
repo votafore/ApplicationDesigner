@@ -14,6 +14,8 @@ public class BlockScene extends Block {
 
     public BlockScene(){
 
+        float[] color = new float[]{0.0f, 0.0f, 1.0f, 1.0f};
+
         float hight = 0.4f;
 
         float right = 1.0f;
@@ -23,11 +25,11 @@ public class BlockScene extends Block {
         float back = -0.5f;
 
         vertices = new float[]{
-                // X, Y, Z
-                left, hight, back,
-                right, hight, back,
-                left, hight, front,
-                right, hight, front
+                // X, Y, Z          цвета вершин
+                left, hight, back,      color[0], color[1], color[2], color[3],
+                right, hight, back,     color[0], color[1], color[2], color[3],
+                left, hight, front,     color[0], color[1], color[2], color[3],
+                right, hight, front,    color[0], color[1], color[2], color[3]
         };
     }
 
@@ -48,6 +50,6 @@ public class BlockScene extends Block {
 
     @Override
     public int getVertexCount() {
-        return vertices.length / POSITION_COUNT;
+        return vertices.length / (POSITION_COUNT+COLOR_COUNT);
     }
 }
