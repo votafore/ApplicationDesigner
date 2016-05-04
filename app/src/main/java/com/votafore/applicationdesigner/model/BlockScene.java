@@ -13,6 +13,7 @@ import static android.opengl.GLES20.GL_TRIANGLE_STRIP;
 public class BlockScene extends Block {
 
     public BlockScene(){
+        super();
 
         float[] color = new float[]{0.0f, 0.0f, 1.0f, 1.0f};
 
@@ -24,7 +25,7 @@ public class BlockScene extends Block {
         float front = 0.5f;
         float back = -0.5f;
 
-        vertices = new float[]{
+        mVertices = new float[]{
                 // X, Y, Z          цвета вершин
                 left, hight, back,      color[0], color[1], color[2], color[3],
                 right, hight, back,     color[0], color[1], color[2], color[3],
@@ -35,21 +36,6 @@ public class BlockScene extends Block {
 
     @Override
     public float[] getVertices() {
-        return vertices;
-    }
-
-    @Override
-    public float[] getColor() {
-        return new float[]{0.0f, 0.0f, 1.0f, 0.4f};
-    }
-
-    @Override
-    public int getMode() {
-        return GL_TRIANGLE_STRIP;
-    }
-
-    @Override
-    public int getVertexCount() {
-        return vertices.length / (POSITION_COUNT+COLOR_COUNT);
+        return mVertices;
     }
 }
