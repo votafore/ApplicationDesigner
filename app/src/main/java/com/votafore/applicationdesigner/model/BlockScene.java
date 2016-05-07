@@ -1,6 +1,5 @@
 package com.votafore.applicationdesigner.model;
 
-import static android.opengl.GLES20.GL_TRIANGLE_STRIP;
 
 /**
  * объект этого класса всего лишь содержит сцену... на ней ничего нет
@@ -14,6 +13,10 @@ public class BlockScene extends Block {
 
     public BlockScene(){
         super();
+    }
+
+    @Override
+    public void initVertices() {
 
         float[] color = new float[]{0.0f, 0.0f, 1.0f, 1.0f};
 
@@ -32,10 +35,5 @@ public class BlockScene extends Block {
                 left, hight, front,     color[0], color[1], color[2], color[3],
                 right, hight, front,    color[0], color[1], color[2], color[3]
         };
-    }
-
-    @Override
-    public float[] getVertices() {
-        return mVertices;
     }
 }

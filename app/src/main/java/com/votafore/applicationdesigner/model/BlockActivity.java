@@ -5,6 +5,10 @@ public class BlockActivity extends Block {
 
     public BlockActivity(){
         super();
+    }
+
+    @Override
+    public void initVertices() {
 
         float[] color = new float[]{0.0f, 1.0f, 0.0f, 0.5f};
 
@@ -25,10 +29,5 @@ public class BlockActivity extends Block {
                 right, bottom, back,    color[0], color[1], color[2], color[3],
                 left, bottom, back,     color[0], color[1], color[2], color[3]
         };
-    }
-
-    @Override
-    public float[] getVertices() {
-        return mVertices;
     }
 }
