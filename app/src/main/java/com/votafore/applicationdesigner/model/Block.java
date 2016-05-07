@@ -15,6 +15,8 @@ public abstract class Block {
         mChilds = new ArrayList<>();
 
         mMode = GL_TRIANGLE_STRIP;
+
+        initVertices();
     }
 
 
@@ -78,7 +80,15 @@ public abstract class Block {
     /**
      * @return массив с координатами вершин текущего объекта (тем самым определяя его форму)
      */
-    public abstract float[] getVertices();
+    public float[] getVertices(){
+        return mVertices;
+    }
+
+    /**
+     * функция, в которой будет создаваться массив с координатами вершин
+     * в объектах, расширяющие класс
+     */
+    public abstract void initVertices();
 
     /**
      * @return тип примитива, которым рисуется объект
