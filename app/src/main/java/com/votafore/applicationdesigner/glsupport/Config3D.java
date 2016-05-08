@@ -1,4 +1,4 @@
-package com.votafore.applicationdesigner.support;
+package com.votafore.applicationdesigner.glsupport;
 
 // код взят тут
 // http://4pda.ru/forum/index.php?showtopic=418429&st=20

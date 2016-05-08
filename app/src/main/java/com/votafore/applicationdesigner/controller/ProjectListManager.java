@@ -14,7 +14,7 @@ public class ProjectListManager {
 
     private static ProjectListManager mThis;
 
-    private DataBase mDataBase;
+    private DataBase        mDataBase;
     private RecycleAdapter  mAdapter;
 
 
