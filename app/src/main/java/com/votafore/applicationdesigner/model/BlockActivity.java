@@ -1,6 +1,8 @@
 package com.votafore.applicationdesigner.model;
 
 
+import android.opengl.Matrix;
+
 public class BlockActivity extends Block {
 
     public BlockActivity(){
@@ -13,21 +15,70 @@ public class BlockActivity extends Block {
         float[] color = new float[]{0.0f, 1.0f, 0.0f, 0.5f};
 
         // x
-        float right = 0.0f;
-        float left = 0.5f;
+        float right;
+        float left;
 
         // y
-        float bottom = 0.4f;
-        float top = 0.7f;
+        float bottom;
+        float top;
 
         //z
-        float back = 0.0f;
+        float back;
+
+        right = 0.0f;
+        left = 0.5f;
+
+        bottom = 0.4f;
+        top = 0.7f;
+
+        back = 0.0f;
+
+
+
+
+
+        // считаем что центр объекта находится посредине,
+        // поэтому расчет координат такой:
+        right = Math.max(mMinWidth, mWidth)/2*-1;
+        left = right*-1;
+
+        bottom = Math.max(mMinHeight, mHeight)/2*-1;
+        top = bottom*-1;
+
+        float[] vector1 = {right, 0.0f, top, 1.0f};
+        float[] vector2 = {left, 0.0f, top, 1.0f};
+        float[] vector3 = {right, 0.0f, bottom, 1.0f};
+        float[] vector4 = {left, 0.0f, bottom, 1.0f};
+
+        // объект сейчас лежит
+        // надо проверить должен ли он таким остаться и если нет,
+        // то сделать необходимые вычисления
+
+        float[] matrix = new float[16];
+
+        Matrix.setIdentityM(matrix, 0);
+
+
+        if(mOrientation[0] == 0.0f||mOrientation[2] == 0.0f){
+            // подъем объекта с лежачего положения (поворот по X)
+            Matrix.rotateM(matrix, 0, 90, 1f, 0f, 0f);
+        }
+
+        if(mOrientation[2] == 0.0f){
+            // доп поворт по оси Y
+            Matrix.rotateM(matrix, 0, 90, 0f, 1f, 0f);
+        }
+
+        Matrix.multiplyMV(vector1, 0, matrix, 0, vector1, 0);
+        Matrix.multiplyMV(vector2, 0, matrix, 0, vector2, 0);
+        Matrix.multiplyMV(vector3, 0, matrix, 0, vector3, 0);
+        Matrix.multiplyMV(vector4, 0, matrix, 0, vector4, 0);
 
         mVertices = new float[]{
-                right, top, back,       color[0], color[1], color[2], color[3],
-                left, top, back,        color[0], color[1], color[2], color[3],
-                right, bottom, back,    color[0], color[1], color[2], color[3],
-                left, bottom, back,     color[0], color[1], color[2], color[3]
+                vector1[0], vector1[1], vector1[2], color[0], color[1], color[2], color[3],
+                vector2[0], vector2[1], vector2[2], color[0], color[1], color[2], color[3],
+                vector3[0], vector3[1], vector3[2], color[0], color[1], color[2], color[3],
+                vector4[0], vector4[1], vector4[2], color[0], color[1], color[2], color[3]
         };
     }
 }

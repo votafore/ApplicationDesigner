@@ -159,8 +159,13 @@ public class OpenGLRenderer implements Renderer{
 
     private void prepareData(){
 
-        mRootBlock = new BlockScene();
-        mRootBlock.addChild(new BlockActivity());
+        //mRootBlock = new BlockScene();
+        //mRootBlock.addChild(new BlockActivity());
+
+        mRootBlock = new BlockActivity();
+
+        mRootBlock.setSize(0.4f, 0.3f);
+        mRootBlock.initVertices();
 
         int count = getVertexCount(mRootBlock);
         vertices = new float[count];

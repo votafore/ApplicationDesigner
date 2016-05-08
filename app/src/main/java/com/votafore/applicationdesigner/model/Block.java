@@ -16,27 +16,29 @@ public abstract class Block {
 
         mMode = GL_TRIANGLE_STRIP;
 
-        initVertices();
+        //initVertices();
     }
 
 
 
     /**
-     * РАЗДЕЛ: СТРУКТУРА СЦЕНЫ
+     * РАЗДЕЛ: СТРУКТУРА СЦЕНЫ (ДЕРЕВО ОБЪЕКТОВ)
      * mChild содержит в себе список подчиненных объктов
      * Это могут быть:
      * - классы
      * - логические блоки
      * - что-то другое, что можно считать отдельным элементом программы или ее алгоритма
      */
-    protected List<Block> mChilds;
-
+    protected List<Block>   mChilds;
+    protected Block         mParent;
 
     public List<Block> getChilds(){
         return mChilds;
     }
 
     public void addChild(Block child){
+
+        child.setParent(this);
         mChilds.add(child);
     }
 
@@ -48,6 +50,81 @@ public abstract class Block {
         mChilds.remove(item);
     }
 
+    public void setParent(Block parent){
+        mParent = parent;
+    }
+
+
+
+
+
+
+
+    /**
+     * РАЗДЕЛ: НАСТРОЙКИ ОБЪЕКТА
+     * здесь определяется:
+     * - размеры относительно родителя
+     * - минимальные размеры
+     * - ориентация в пространстве
+     */
+
+
+
+    /**
+     * mMinWidth и mMinHeight. Ширина и высота вложенных (подчиненных объектов) уменьшается
+     * в зависимости от уровня вложенности и настроек размера относительно родителя,
+     * но размер не может быть меньше чем минимальный
+     */
+
+    protected float mMinWidth = 0.1f;
+    protected float mMinHeight = 0.1f;
+
+
+    /**
+     * mOrientation. Задает положение объекта:
+     * - лежит                  {1,0,1}
+     * - стоит (лицом к оси Z)  {0,1,1}
+     * - стоит (лицом к оси X)  {1,1,0}
+     */
+    protected float[] mOrientation = {1.0f, 0.0f, 1.0f};
+
+    public void setOrientation(int x, int y, int z){
+
+        mOrientation[0] = (float)x;
+        mOrientation[1] = (float)y;
+        mOrientation[2] = (float)z;
+    }
+
+
+    /**
+     * mMinWidth и mMinHeight. Ширина и высота вложенных (подчиненных объектов) уменьшается
+     * в зависимости от уровня вложенности и настроек размера относительно родителя,
+     * но размер не может быть меньше чем минимальный
+     */
+    protected float mWidth;
+    protected float mHeight;
+
+    public void setSize(float width, float height){
+
+        mWidth  = width;
+        mHeight = height;
+    }
+
+    /**
+     * mRelativeWidth и mRelativeHeight параметры относительных размеров
+     * т.е. относительно размера родителя.
+     * 1.0f = 100%
+     */
+    protected float mRelativeWidth;
+    protected float mRelativeHeight;
+
+    public void setRelativeWidth(float width){
+        mRelativeWidth = width;
+    }
+
+    public void setRelativeHeight(float height){
+        mRelativeHeight = height;
+    }
 
 
 
@@ -103,6 +180,12 @@ public abstract class Block {
     public int getVertexCount(){
         return mVertices.length / (POSITION_COUNT + COLOR_COUNT);
     }
+
+
+
+
+
+
 
 
 

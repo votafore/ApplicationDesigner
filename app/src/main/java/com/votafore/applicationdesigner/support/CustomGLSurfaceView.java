@@ -28,8 +28,12 @@ public class CustomGLSurfaceView extends GLSurfaceView{
 
         // настрйока вьюхи
         setEGLContextClientVersion(2);
-        getHolder().setFormat(PixelFormat.RGBA_8888);
-        setEGLConfigChooser(new Config3D());
+//        getHolder().setFormat(PixelFormat.RGBA_8888);
+//        try {
+//            setEGLConfigChooser(new Config3D());
+//        }catch (IllegalArgumentException e){
+//            // просто так
+//        }
 
         mRenderer = mManager.getRenderer();
 
