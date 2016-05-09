@@ -8,8 +8,6 @@ import android.view.MotionEvent;
 
 import com.votafore.applicationdesigner.glsupport.ShaderUtils;
 import com.votafore.applicationdesigner.model.Block;
-import com.votafore.applicationdesigner.model.BlockActivity;
-import com.votafore.applicationdesigner.model.BlockScene;
 import com.votafore.applicationdesigner.R;
 
 
@@ -159,19 +157,16 @@ public class OpenGLRenderer implements Renderer{
 
     private void prepareData(){
 
-        //mRootBlock = new BlockScene();
-        //mRootBlock.addChild(new BlockActivity());
-
-        mRootBlock = new BlockActivity();
-
-        mRootBlock.setSize(0.4f, 0.3f);
-        mRootBlock.setOrientation(0,1,1);
-        mRootBlock.initVertices();
-
-        int count = getVertexCount(mRootBlock);
-        vertices = new float[count];
-
-        toVertices(mRootBlock, 0);
+        if(mRootBlock == null){
+            // если объект еще не назначен
+            // создаем пустой буфер
+            vertices = new float[0];
+        }else{
+            // иначе заполняем буфер данными вершин
+            int count = getVertexCount(mRootBlock);
+            vertices = new float[count];
+            toVertices(mRootBlock, 0);
+        }
 
         vertexData = ByteBuffer
                 .allocateDirect(vertices.length * 4)

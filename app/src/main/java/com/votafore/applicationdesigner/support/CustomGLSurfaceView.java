@@ -10,6 +10,7 @@ import android.view.Display;
 import android.view.MotionEvent;
 
 import com.votafore.applicationdesigner.controller.ProjectManager;
+import com.votafore.applicationdesigner.model.Block;
 
 public class CustomGLSurfaceView extends GLSurfaceView{
 
@@ -24,14 +25,14 @@ public class CustomGLSurfaceView extends GLSurfaceView{
         mContext = ctx;
 
         // создаем "управляющего" для работы с проектом
-        mManager = new ProjectManager(mContext, projectID);
+        mManager = new ProjectManager(mContext, this, projectID);
 
         // настрйока вьюхи
         setEGLContextClientVersion(2);
 //        getHolder().setFormat(PixelFormat.RGBA_8888);
 //        setEGLConfigChooser(new Config3D());
 
-        mRenderer = mManager.getRenderer();
+        mRenderer = new OpenGLRenderer(mContext);
 
         setRenderer(mRenderer);
     }
@@ -48,5 +49,15 @@ public class CustomGLSurfaceView extends GLSurfaceView{
         });
 
         return true;
+    }
+
+    public void setRootBlock(final Block block) {
+
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mRenderer.setBlocks(block);
+            }
+        });
     }
 }
