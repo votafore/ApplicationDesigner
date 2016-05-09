@@ -62,38 +62,93 @@ public class ProjectManager {
         @Override
         protected Block doInBackground(Integer... params) {
 
-            countAll = 2;
+            countAll = 5;
+            float[] translation;
 
-            Block testBlock = new Block();
+            Block rootBlock = new Block();
 
-            count++;
+            ++count;
 
-            float[] matr = testBlock.getTranslateMatrix();
-            Matrix.translateM(matr, 0, 0.2f, 0.0f, 0.0f);
-            testBlock.setTranslateMatrix(matr);
-
-            testBlock.setColor(new float[]{0.0f, 1.0f, 0.0f, 0.0f});
-            testBlock.setSize(1.0f, 0.5f);
-            testBlock.setOrientation(1,0,1);
-            testBlock.initVertices();
+            rootBlock.setSize(0.0f, 0.0f);
+            rootBlock.setOrientation(Block.Plane.Y);
+            rootBlock.initVertices();
 
             publishProgress((count / countAll) * 100);
 
-            Block testChild = new Block();
 
-            count++;
+            Block UI = new Block();
+            rootBlock.addChild(UI);
 
-            testBlock.addChild(testChild);
+            ++count;
 
-            testChild.setTranslateMatrix(matr);
-            testChild.setColor(new float[]{0.0f, 0.0f, 1.0f, 0.0f});
-            testChild.setSize(0.4f, 0.4f);
-            testChild.setOrientation(1,0,1);
-            testChild.initVertices();
+            translation = UI.getTranslateMatrix();
+            Matrix.translateM(translation, 0, 0.0f, 0.3f, 0.5f);
+            UI.setTranslateMatrix(translation);
+
+            UI.setColor(new float[]{0.0f, 1.0f, 0.0f, 0.0f});
+            UI.setSize(1.0f, 0.6f);
+            UI.setOrientation(Block.Plane.Y);
+            UI.initVertices();
 
             publishProgress((count / countAll) * 100);
 
-            return testBlock;
+
+            Block functionality = new Block();
+            rootBlock.addChild(functionality);
+
+            ++count;
+
+            functionality.setSize(0.0f, 0.0f);
+            functionality.setOrientation(Block.Plane.Y);
+            functionality.initVertices();
+
+            publishProgress((count / countAll) * 100);
+
+
+
+
+
+
+            Block mainActivity = new Block();
+            UI.addChild(mainActivity);
+
+            ++count;
+
+            mainActivity.setColor(new float[]{0.0f, 0.0f, 1.0f, 1.0f});
+            mainActivity.setSize(0.4f, 0.6f);
+
+            translation = mainActivity.getTranslateMatrix();
+            Matrix.translateM(translation, 0, 0.2f, mainActivity.getHeight()/2, 0.0f);
+            mainActivity.setTranslateMatrix(translation);
+
+            mainActivity.setOrientation(Block.Plane.X);
+            mainActivity.initVertices();
+
+            publishProgress((count / countAll) * 100);
+
+
+
+
+
+            Block manager = new Block();
+            functionality.addChild(manager);
+
+            ++count;
+
+            manager.setColor(new float[]{0.5f, 0.0f, 1.0f, 0.5f});
+            manager.setSize(0.6f, 0.4f);
+
+            translation = manager.getTranslateMatrix();
+            Matrix.translateM(translation, 0, (float)(manager.getWidth()+0.1), 0.0f, -0.2f);
+            manager.setTranslateMatrix(translation);
+
+            manager.setOrientation(Block.Plane.Y);
+            manager.initVertices();
+
+            publishProgress((count / countAll) * 100);
+
+
+            return rootBlock;
         }
 
         @Override

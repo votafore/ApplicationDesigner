@@ -1,6 +1,7 @@
 package com.votafore.applicationdesigner.support;
 
 import android.content.Context;
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
 import android.util.Log;
@@ -78,16 +79,13 @@ public class OpenGLRenderer implements Renderer{
 
         mRootBlock = null;
 
-        //eyeX = 3f;
-        eyeY = 1f;
-        //eyeZ = 3f;
-
         radius = 4f;
 
         deltaX = 0f;
 
         angle = ((this.deltaX % 25) / 25)  *  2 * 3.1415926f;
 
+        eyeY = 1.0f;
         eyeX = (float) (Math.cos(angle) * radius);
         eyeZ = (float) (Math.sin(angle) * radius);
 
@@ -100,6 +98,7 @@ public class OpenGLRenderer implements Renderer{
     @Override
     public void onSurfaceCreated(GL10 arg0, EGLConfig arg1) {
         glClearColor(0.5f, 0.5f, 0.5f, 1f);
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
         int vertexShaderId      = ShaderUtils.createShader(context, GL_VERTEX_SHADER   , R.raw.vertex_shader);
         int fragmentShaderId    = ShaderUtils.createShader(context, GL_FRAGMENT_SHADER , R.raw.fragment_shader);
@@ -136,7 +135,7 @@ public class OpenGLRenderer implements Renderer{
     }
 
 
-    private void drawBlock(Block block, int counter){
+    private int drawBlock(Block block, int counter){
 
         glDrawArrays(block.getMode(), counter, block.getVertexCount());
 
@@ -145,8 +144,10 @@ public class OpenGLRenderer implements Renderer{
         List<Block> childs = block.getChilds();
         for(Block curBlock: childs){
 
-            drawBlock(curBlock, counter);
+            counter = drawBlock(curBlock, counter);
         }
+
+        return counter;
     }
 
 

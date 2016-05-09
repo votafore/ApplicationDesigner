@@ -42,6 +42,7 @@ public class Block {
     public void addChild(Block child){
 
         child.setParent(this);
+        child.setOrientation(mPlane);
         mChilds.add(child);
     }
 
@@ -55,12 +56,6 @@ public class Block {
 
     public void setParent(Block parent){
         mParent = parent;
-
-        // TODO: следует учесть расположение объектов в плоскости
-        // учесть, что для объектов, расположенных в разных плоскостях будут разные возможности перемещения
-        // может не совсем верно сформулированно, но...
-        // их расположение по-любому надо учитывать
-
         // рассчитаем матрицу перемещения
         Matrix.multiplyMM(mResultTranslateMatrix, 0, mTranslateMatrix, 0, mParent.getResTranslateMatrix(), 0);
     }
@@ -92,21 +87,45 @@ public class Block {
 
 
     /**
-     * mOrientation. Задает положение объекта:
-     * - лежит                  {1,0,1}
-     * - стоит (лицом к оси X)  {0,1,1}
-     * - стоит (лицом к оси Z)  {1,1,0}
+     * mPlane. Задает положение объекта в одной из плоскостей: X, Y или Z
      */
-    float[] mOrientation = {1.0f, 0.0f, 1.0f};
 
-    // TODO: учесть расположение объекта
-    // расположение объекта будет влиять на расположение его "потомков"
-    // пока что это не учитывается, но это надо доделать.
-    public void setOrientation(int x, int y, int z){
+    public enum Plane{
+        X,
+        Y,
+        Z
+    }
 
-        mOrientation[0] = (float)x;
-        mOrientation[1] = (float)y;
-        mOrientation[2] = (float)z;
+    Plane mPlane = Plane.Y;
+
+    public void setOrientation(Plane plane){
+
+        //  по умолчанию предполагается что будет установлена переданная плоскость
+        Plane newPlane = plane;
+
+        // но если есть родитель, то проверяем его плоскость
+        if(mParent != null){
+
+            // если это вертикальная плоскость
+            // то потомки могут быть только в этой же плоскости
+
+            Plane parentPlane = mParent.getPlane();
+
+            if(parentPlane == Plane.X)
+                newPlane = parentPlane;
+
+            if (parentPlane == Plane.Z)
+                newPlane = parentPlane;
+        }
+
+        // для объектов, расположенных вертикально
+        // потомки могут иметь только вертикальное расположение
+
+        mPlane = newPlane;
+    }
+
+    public Plane getPlane(){
+        return mPlane;
     }
 
 
@@ -122,6 +141,14 @@ public class Block {
 
         mWidth  = width;
         mHeight = height;
+    }
+
+    public float getWidth(){
+        return mWidth;
+    }
+
+    public float getHeight(){
+        return mHeight;
     }
 
     /**
@@ -258,12 +285,12 @@ public class Block {
         Matrix.multiplyMM(matrix, 0, matrix, 0, mResultTranslateMatrix, 0);
 
         // матрицы поворота в обратном порядке
-        if(mOrientation[2] == 0.0f){
+        if(mPlane == Plane.Z){
             // доп поворт по оси Y
             Matrix.rotateM(matrix, 0, 90, 0, 1, 0);
         }
 
-        if(mOrientation[0] == 0.0f||mOrientation[2] == 0.0f){
+        if(mPlane == Plane.X||mPlane == Plane.Z){
             // подъем объекта с лежачего положения (поворот по X)
             Matrix.rotateM(matrix, 0, 90, 1, 0, 0);
         }
