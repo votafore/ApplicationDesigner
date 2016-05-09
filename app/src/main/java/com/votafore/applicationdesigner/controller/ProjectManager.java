@@ -1,27 +1,15 @@
 package com.votafore.applicationdesigner.controller;
 
 import android.content.Context;
-import android.opengl.GLSurfaceView.Renderer;
+import android.opengl.Matrix;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.MotionEvent;
 
 import com.votafore.applicationdesigner.model.Block;
-import com.votafore.applicationdesigner.model.BlockActivity;
-import com.votafore.applicationdesigner.model.BlockScene;
 import com.votafore.applicationdesigner.model.DataBase;
 import com.votafore.applicationdesigner.support.CustomGLSurfaceView;
-import com.votafore.applicationdesigner.support.OpenGLRenderer;
 
 import java.util.List;
-
-import static android.opengl.GLES20.GL_FLOAT;
-import static android.opengl.GLES20.GL_TRIANGLES;
-import static android.opengl.GLES20.glDrawArrays;
-import static android.opengl.GLES20.glEnableVertexAttribArray;
-import static android.opengl.GLES20.glGetAttribLocation;
-import static android.opengl.GLES20.glGetUniformLocation;
-import static android.opengl.GLES20.glUniform4f;
 
 /**
  * класс для организации работы с данными проекта:
@@ -74,15 +62,35 @@ public class ProjectManager {
         @Override
         protected Block doInBackground(Integer... params) {
 
-            countAll = 1;
+            countAll = 2;
 
-            Block testBlock = new BlockActivity();
-
-            testBlock.setSize(0.4f, 0.3f);
-            testBlock.setOrientation(0,1,1);
-            testBlock.initVertices();
+            Block testBlock = new Block();
 
             count++;
+
+            float[] matr = testBlock.getTranslateMatrix();
+            Matrix.translateM(matr, 0, 0.2f, 0.0f, 0.0f);
+            testBlock.setTranslateMatrix(matr);
+
+            testBlock.setColor(new float[]{0.0f, 1.0f, 0.0f, 0.0f});
+            testBlock.setSize(1.0f, 0.5f);
+            testBlock.setOrientation(1,0,1);
+            testBlock.initVertices();
+
+            publishProgress((count / countAll) * 100);
+
+            Block testChild = new Block();
+
+            count++;
+
+            testBlock.addChild(testChild);
+
+            testChild.setTranslateMatrix(matr);
+            testChild.setColor(new float[]{0.0f, 0.0f, 1.0f, 0.0f});
+            testChild.setSize(0.4f, 0.4f);
+            testChild.setOrientation(1,0,1);
+            testChild.initVertices();
+
             publishProgress((count / countAll) * 100);
 
             return testBlock;

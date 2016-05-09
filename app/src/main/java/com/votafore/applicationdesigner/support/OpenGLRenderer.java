@@ -108,8 +108,6 @@ public class OpenGLRenderer implements Renderer{
         glUseProgram(programId);
 
         createViewMatrix();
-
-        bindData();
     }
 
 
@@ -126,13 +124,13 @@ public class OpenGLRenderer implements Renderer{
     @Override
     public void onDrawFrame(GL10 arg0) {
 
-        createViewMatrix();
-        bindMatrix();
-
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if(mRootBlock ==  null)
             return;
+
+        createViewMatrix();
+        bindMatrix();
 
         drawBlock(mRootBlock, 0);
     }
@@ -250,6 +248,7 @@ public class OpenGLRenderer implements Renderer{
     public void setBlocks(Block block){
         mRootBlock = block;
         prepareData();
+        bindData();
     }
 
     public void onTouchEvent(MotionEvent event){
