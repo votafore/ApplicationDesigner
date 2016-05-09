@@ -41,8 +41,8 @@ public class ProjectManager {
         mContext = ctx;
         mRenderer = new OpenGLRenderer(mContext);
 
-        mRootBlock = new BlockScene();
-        mRootBlock.setProjectID(id);
+        //mRootBlock = new BlockScene();
+        //mRootBlock.setProjectID(id);
 
         //ProjectLoader loader = new ProjectLoader(mContext, this);
         //loader.execute(mRootBlock);

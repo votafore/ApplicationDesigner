@@ -165,6 +165,7 @@ public class OpenGLRenderer implements Renderer{
         mRootBlock = new BlockActivity();
 
         mRootBlock.setSize(0.4f, 0.3f);
+        mRootBlock.setOrientation(0,1,1);
         mRootBlock.initVertices();
 
         int count = getVertexCount(mRootBlock);

@@ -22,20 +22,6 @@ public class BlockActivity extends Block {
         float bottom;
         float top;
 
-        //z
-        float back;
-
-        right = 0.0f;
-        left = 0.5f;
-
-        bottom = 0.4f;
-        top = 0.7f;
-
-        back = 0.0f;
-
-
-
-
 
         // считаем что центр объекта находится посредине,
         // поэтому расчет координат такой:
@@ -61,12 +47,12 @@ public class BlockActivity extends Block {
 
         if(mOrientation[0] == 0.0f||mOrientation[2] == 0.0f){
             // подъем объекта с лежачего положения (поворот по X)
-            Matrix.rotateM(matrix, 0, 90, 1f, 0f, 0f);
+            Matrix.rotateM(matrix, 0, 90, 1, 0, 0);
         }
 
         if(mOrientation[2] == 0.0f){
             // доп поворт по оси Y
-            Matrix.rotateM(matrix, 0, 90, 0f, 1f, 0f);
+            Matrix.rotateM(matrix, 0, 90, 0, 1, 0);
         }
 
         Matrix.multiplyMV(vector1, 0, matrix, 0, vector1, 0);
