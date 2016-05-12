@@ -41,6 +41,8 @@ public class OpenGLRenderer implements Renderer{
     private Context context;
 
     private String TAG = "MyEvent";
+    private String TAG1 = "MyEvent1";
+    private String TAG2 = "MyEvent2";
 
 
     // ДАННЫЕ ДЛЯ ШЕЙДЕРОВ
@@ -265,10 +267,9 @@ public class OpenGLRenderer implements Renderer{
                 mY = event.getY();
                 return;
             case MotionEvent.ACTION_UP:
-                //Log.d(TAG, "action up");
+                Log.d(TAG, "action up");
+                return;
         }
-
-        Log.d(TAG, "delta X:" + String.valueOf((event.getX() - mX)/100) + " delta Y:"+String.valueOf((mY - event.getY())/100));
 
         // устанавливаем расстояние камеры
         radius += (mY - event.getY())/100;
@@ -279,6 +280,10 @@ public class OpenGLRenderer implements Renderer{
 
         eyeX = (float) (Math.cos(angle) * radius);
         eyeZ = (float) (Math.sin(angle) * radius);
+
+        Log.d(TAG, "event.getX():" + String.valueOf(event.getX()) + " event.getY():"+String.valueOf(event.getY()));
+        Log.d(TAG1, "delta X:" + String.valueOf((event.getX() - mX)/100) + " delta Y:"+String.valueOf((mY - event.getY())/100));
+        Log.d(TAG2, "delta X:" + String.valueOf(deltaX) + " radius (Y):"+String.valueOf(radius));
 
         mX = event.getX();
         mY = event.getY();

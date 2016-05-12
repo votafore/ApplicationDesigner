@@ -10,9 +10,14 @@ import android.view.Display;
 import android.view.MotionEvent;
 
 import com.votafore.applicationdesigner.controller.ProjectManager;
+import com.votafore.applicationdesigner.glsupport.Config3D;
 import com.votafore.applicationdesigner.model.Block;
 
 public class CustomGLSurfaceView extends GLSurfaceView{
+
+    String TAG = "MyEvent";
+
+
 
     Context mContext;
 
@@ -48,7 +53,12 @@ public class CustomGLSurfaceView extends GLSurfaceView{
             }
         });
 
-        return true;
+        boolean result = true;
+
+        if(event.getAction() == MotionEvent.ACTION_UP)
+            result = false;
+
+        return result;
     }
 
     public void setRootBlock(final Block block) {
@@ -59,5 +69,7 @@ public class CustomGLSurfaceView extends GLSurfaceView{
                 mRenderer.setBlocks(block);
             }
         });
+
+        Log.d(TAG, "block sent");
     }
 }

@@ -157,6 +157,8 @@ public class ProjectManager {
             if(isCancelled())
                 return;
 
+            Log.d(TAG, "Load complete");
+
             mGLview.setRootBlock(block);
         }
 
