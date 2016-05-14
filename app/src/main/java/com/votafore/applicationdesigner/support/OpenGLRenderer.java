@@ -1,6 +1,7 @@
 package com.votafore.applicationdesigner.support;
 
 import android.content.Context;
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
 import android.util.Log;
@@ -8,8 +9,6 @@ import android.view.MotionEvent;
 
 import com.votafore.applicationdesigner.glsupport.ShaderUtils;
 import com.votafore.applicationdesigner.model.Block;
-import com.votafore.applicationdesigner.model.BlockActivity;
-import com.votafore.applicationdesigner.model.BlockScene;
 import com.votafore.applicationdesigner.R;
 
 
@@ -21,14 +20,21 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import static android.opengl.GLES20.GL_BLEND;
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.GL_DEPTH_BUFFER_BIT;
+import static android.opengl.GLES20.GL_DEPTH_TEST;
 import static android.opengl.GLES20.GL_FLOAT;
 import static android.opengl.GLES20.GL_FRAGMENT_SHADER;
+import static android.opengl.GLES20.GL_ONE_MINUS_SRC_ALPHA;
+import static android.opengl.GLES20.GL_SRC_ALPHA;
 import static android.opengl.GLES20.GL_VERTEX_SHADER;
+import static android.opengl.GLES20.glBlendFunc;
 import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glClearColor;
+import static android.opengl.GLES20.glDisable;
 import static android.opengl.GLES20.glDrawArrays;
+import static android.opengl.GLES20.glEnable;
 import static android.opengl.GLES20.glEnableVertexAttribArray;
 import static android.opengl.GLES20.glGetAttribLocation;
 import static android.opengl.GLES20.glGetUniformLocation;
@@ -42,6 +48,7 @@ public class OpenGLRenderer implements Renderer{
     private Context context;
 
     private String TAG = "MyEvent";
+
 
 
     // ДАННЫЕ ДЛЯ ШЕЙДЕРОВ
@@ -69,6 +76,16 @@ public class OpenGLRenderer implements Renderer{
     float mX;
     float mY;
 
+    // точка направления камеры
+    float mCenterX = 0;
+    float mCenterY = 0;
+    float mCenterZ = 0;
+
+    // up-вектор
+    float mUpX = 0;
+    float mUpY = 1;
+    float mUpZ = 0;
+
     // ДАННЫЕ ОБЪЕКТОВ
     private Block   mRootBlock;     // содержит корневой объект сцены
     private float[] vertices;       // массив вершин для отрисовки объектов
@@ -80,18 +97,24 @@ public class OpenGLRenderer implements Renderer{
 
         mRootBlock = null;
 
-        //eyeX = 3f;
-        eyeY = 1f;
-        //eyeZ = 3f;
-
         radius = 4f;
 
         deltaX = 0f;
 
         angle = ((this.deltaX % 25) / 25)  *  2 * 3.1415926f;
 
+        eyeY = 1.0f;
         eyeX = (float) (Math.cos(angle) * radius);
         eyeZ = (float) (Math.sin(angle) * radius);
+
+        // настройки направления камеры
+        mCenterX = 0;
+        mCenterY = 0;
+        mCenterZ = 0;
+
+        mUpX = 0;
+        mUpY = 1;
+        mUpZ = 0;
 
         prepareData();
     }
@@ -102,79 +125,17 @@ public class OpenGLRenderer implements Renderer{
     @Override
     public void onSurfaceCreated(GL10 arg0, EGLConfig arg1) {
         glClearColor(0.5f, 0.5f, 0.5f, 1f);
+        //GLES20.glEnable(GL_DEPTH_TEST);
+        glDisable(GL_DEPTH_TEST);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         int vertexShaderId      = ShaderUtils.createShader(context, GL_VERTEX_SHADER   , R.raw.vertex_shader);
         int fragmentShaderId    = ShaderUtils.createShader(context, GL_FRAGMENT_SHADER , R.raw.fragment_shader);
         programId               = ShaderUtils.createProgram(vertexShaderId, fragmentShaderId);
 
         glUseProgram(programId);
-
-        createViewMatrix();
-
-        bindData();
-    }
-
-
-    @Override
-    public void onSurfaceChanged(GL10 arg0, int width, int height) {
-        glViewport(0, 0, width, height);
-
-        createProjectionMatrix(width, height);
-        bindMatrix();
-
-    }
-
-
-    @Override
-    public void onDrawFrame(GL10 arg0) {
-
-        createViewMatrix();
-        bindMatrix();
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        if(mRootBlock ==  null)
-            return;
-
-        drawBlock(mRootBlock, 0);
-    }
-
-
-    private void drawBlock(Block block, int counter){
-
-        glDrawArrays(block.getMode(), counter, block.getVertexCount());
-
-        counter += block.getVertexCount();
-
-        List<Block> childs = block.getChilds();
-        for(Block curBlock: childs){
-
-            drawBlock(curBlock, counter);
-        }
-    }
-
-
-
-    // УПРАВЛЕНИЕ ПОДГОТОВКОЙ ДАННЫХ
-
-    private void prepareData(){
-
-        mRootBlock = new BlockScene();
-        mRootBlock.addChild(new BlockActivity());
-
-        int count = getVertexCount(mRootBlock);
-        vertices = new float[count];
-
-        toVertices(mRootBlock, 0);
-
-        vertexData = ByteBuffer
-                .allocateDirect(vertices.length * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
-        vertexData.put(vertices);
-    }
-
-    private void bindData() {
 
         aPositionLocation   = glGetAttribLocation(programId, "a_Position");
         aColorLocation      = glGetAttribLocation(programId, "a_Color");
@@ -191,8 +152,12 @@ public class OpenGLRenderer implements Renderer{
         glEnableVertexAttribArray(aColorLocation);
     }
 
-    private void createProjectionMatrix(int width, int height) {
 
+    @Override
+    public void onSurfaceChanged(GL10 arg0, int width, int height) {
+        glViewport(0, 0, width, height);
+
+        // настраиваем матрицу проекции
         float ratio;
 
         float left = -1;
@@ -214,32 +179,63 @@ public class OpenGLRenderer implements Renderer{
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
     }
 
-    private void createViewMatrix() {
 
-//        float time = (float)(SystemClock.uptimeMillis() % TIME) / TIME;
-//        float angle = time  *  2 * 3.1415926f;
+    @Override
+    public void onDrawFrame(GL10 arg0) {
 
-        // точка положения камеры
-//        float eyeX = 4f;//(float) (Math.cos(angle) * 4f);
-//        float eyeY = 1f;
-//        float eyeZ = 4f;//(float) (Math.sin(angle) * 4f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // точка направления камеры
-        float centerX = 0;
-        float centerY = 0;
-        float centerZ = 0;
+        if(mRootBlock ==  null)
+            return;
 
-        // up-вектор
-        float upX = 0;
-        float upY = 1;
-        float upZ = 0;
+        // создаем матрицу вида
+        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, mCenterX, mCenterY, mCenterZ, mUpX, mUpY, mUpZ);
 
-        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
-    }
-
-    private void bindMatrix() {
+        // соединяем матрицы вида и проекции
         Matrix.multiplyMM(mMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
         glUniformMatrix4fv(uMatrixLocation, 1, false, mMatrix, 0);
+
+        drawBlock(mRootBlock, 0);
+    }
+
+
+    private int drawBlock(Block block, int counter){
+
+        glDrawArrays(block.getMode(), counter, block.getVertexCount());
+
+        counter += block.getVertexCount();
+
+        List<Block> childs = block.getChilds();
+        for(Block curBlock: childs){
+
+            counter = drawBlock(curBlock, counter);
+        }
+
+        return counter;
+    }
+
+
+
+    // УПРАВЛЕНИЕ ПОДГОТОВКОЙ ДАННЫХ
+
+    private void prepareData(){
+
+        if(mRootBlock == null){
+            // если объект еще не назначен
+            // создаем пустой буфер
+            vertices = new float[0];
+        }else{
+            // иначе заполняем буфер данными вершин
+            int count = getVertexCount(mRootBlock);
+            vertices = new float[count];
+            toVertices(mRootBlock, 0);
+        }
+
+        vertexData = ByteBuffer
+                .allocateDirect(vertices.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        vertexData.put(vertices);
     }
 
 
@@ -264,10 +260,9 @@ public class OpenGLRenderer implements Renderer{
                 mY = event.getY();
                 return;
             case MotionEvent.ACTION_UP:
-                //Log.d(TAG, "action up");
+                Log.d(TAG, "action up");
+                return;
         }
-
-        Log.d(TAG, "delta X:" + String.valueOf((event.getX() - mX)/100) + " delta Y:"+String.valueOf((mY - event.getY())/100));
 
         // устанавливаем расстояние камеры
         radius += (mY - event.getY())/100;
@@ -278,6 +273,10 @@ public class OpenGLRenderer implements Renderer{
 
         eyeX = (float) (Math.cos(angle) * radius);
         eyeZ = (float) (Math.sin(angle) * radius);
+
+//        Log.d(TAG, "event.getX():" + String.valueOf(event.getX()) + " event.getY():"+String.valueOf(event.getY()));
+//        Log.d(TAG, "delta X:" + String.valueOf((event.getX() - mX)/100) + " delta Y:"+String.valueOf((mY - event.getY())/100));
+//        Log.d(TAG, "delta X:" + String.valueOf(deltaX) + " radius (Y):"+String.valueOf(radius));
 
         mX = event.getX();
         mY = event.getY();

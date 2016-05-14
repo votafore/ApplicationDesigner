@@ -141,7 +141,7 @@ public class DataBase extends SQLiteOpenHelper{
                 // TODO
                 // на самом деле потом надо будет определять тип и от него
                 // отталкиваться при создании блока
-                Block child = new BlockActivity();
+                Block child = new Block();
 
                 child.setID(cursor.getInt(0));
                 child.setProjectID(cursor.getInt(1));

@@ -1,27 +1,15 @@
 package com.votafore.applicationdesigner.controller;
 
 import android.content.Context;
-import android.opengl.GLSurfaceView.Renderer;
+import android.opengl.Matrix;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.MotionEvent;
 
 import com.votafore.applicationdesigner.model.Block;
-import com.votafore.applicationdesigner.model.BlockActivity;
-import com.votafore.applicationdesigner.model.BlockScene;
 import com.votafore.applicationdesigner.model.DataBase;
 import com.votafore.applicationdesigner.support.CustomGLSurfaceView;
-import com.votafore.applicationdesigner.support.OpenGLRenderer;
 
 import java.util.List;
-
-import static android.opengl.GLES20.GL_FLOAT;
-import static android.opengl.GLES20.GL_TRIANGLES;
-import static android.opengl.GLES20.glDrawArrays;
-import static android.opengl.GLES20.glEnableVertexAttribArray;
-import static android.opengl.GLES20.glGetAttribLocation;
-import static android.opengl.GLES20.glGetUniformLocation;
-import static android.opengl.GLES20.glUniform4f;
 
 /**
  * класс для организации работы с данными проекта:
@@ -74,30 +62,93 @@ public class ProjectManager {
         @Override
         protected Block doInBackground(Integer... params) {
 
-//            countAll = db.getAllDataCount(params[0].getProjectID());
-//
-//            loadBranch(params[0]);
-//
-//            db.close();
+            countAll = 5;
+            float[] translation;
 
+            Block rootBlock = new Block();
 
-            // раздел тестовых данных...
-            // типа мы загрузили их из базы данных
+            ++count;
 
-            countAll = 2;
+            rootBlock.setSize(0.0f, 0.0f);
+            rootBlock.setOrientation(Block.Plane.Y);
+            rootBlock.initVertices();
 
-            Block testBlock = new BlockScene();
-            count++;
-            publishProgress((count / countAll) * 100);
-
-            testBlock.addChild(new BlockActivity());
-            count++;
             publishProgress((count / countAll) * 100);
 
 
+            Block UI = new Block();
+            rootBlock.addChild(UI);
+
+            ++count;
+
+            translation = UI.getTranslateMatrix();
+            Matrix.translateM(translation, 0, 0.0f, 0.3f, 0.5f);
+            UI.setTranslateMatrix(translation);
+
+            UI.setColor(new float[]{0.0f, 1.0f, 0.0f, 0.6f});
+            UI.setSize(1.0f, 0.6f);
+            UI.setOrientation(Block.Plane.Y);
+            UI.initVertices();
+
+            publishProgress((count / countAll) * 100);
 
 
-            return testBlock;
+            Block functionality = new Block();
+            rootBlock.addChild(functionality);
+
+            ++count;
+
+            functionality.setSize(0.0f, 0.0f);
+            functionality.setOrientation(Block.Plane.Y);
+            functionality.initVertices();
+
+            publishProgress((count / countAll) * 100);
+
+
+
+
+
+
+            Block mainActivity = new Block();
+            UI.addChild(mainActivity);
+
+            ++count;
+
+            mainActivity.setColor(new float[]{0.0f, 0.0f, 1.0f, 0.5f});
+            mainActivity.setSize(0.4f, 0.6f);
+
+            translation = mainActivity.getTranslateMatrix();
+            Matrix.translateM(translation, 0, 0.2f, mainActivity.getHeight()/2, 0.0f);
+            mainActivity.setTranslateMatrix(translation);
+
+            mainActivity.setOrientation(Block.Plane.X);
+            mainActivity.initVertices();
+
+            publishProgress((count / countAll) * 100);
+
+
+
+
+
+            Block manager = new Block();
+            functionality.addChild(manager);
+
+            ++count;
+
+            manager.setColor(new float[]{0.5f, 0.0f, 1.0f, 0.5f});
+            manager.setSize(0.6f, 0.4f);
+
+            translation = manager.getTranslateMatrix();
+            Matrix.translateM(translation, 0, (float)(manager.getWidth()+0.1), 0.0f, -0.2f);
+            manager.setTranslateMatrix(translation);
+
+            manager.setOrientation(Block.Plane.Y);
+            manager.initVertices();
+
+            publishProgress((count / countAll) * 100);
+
+
+            return rootBlock;
         }
 
         @Override
@@ -105,6 +156,8 @@ public class ProjectManager {
 
             if(isCancelled())
                 return;
+
+            Log.d(TAG, "Load complete");
 
             mGLview.setRootBlock(block);
         }

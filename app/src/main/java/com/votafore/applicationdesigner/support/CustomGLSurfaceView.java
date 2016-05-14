@@ -10,9 +10,14 @@ import android.view.Display;
 import android.view.MotionEvent;
 
 import com.votafore.applicationdesigner.controller.ProjectManager;
+import com.votafore.applicationdesigner.glsupport.Config3D;
 import com.votafore.applicationdesigner.model.Block;
 
 public class CustomGLSurfaceView extends GLSurfaceView{
+
+    String TAG = "MyEvent";
+
+
 
     Context mContext;
 
@@ -29,12 +34,13 @@ public class CustomGLSurfaceView extends GLSurfaceView{
 
         // настрйока вьюхи
         setEGLContextClientVersion(2);
-//        getHolder().setFormat(PixelFormat.RGBA_8888);
-//        setEGLConfigChooser(new Config3D());
+        getHolder().setFormat(PixelFormat.TRANSPARENT);
+        setEGLConfigChooser(new Config3D());
 
         mRenderer = new OpenGLRenderer(mContext);
 
         setRenderer(mRenderer);
+        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 
     @Override
@@ -48,16 +54,28 @@ public class CustomGLSurfaceView extends GLSurfaceView{
             }
         });
 
-        return true;
+        boolean result = true;
+
+        if(event.getAction() == MotionEvent.ACTION_UP)
+            result = false;
+
+        requestRender();
+
+        return result;
     }
 
     public void setRootBlock(final Block block) {
 
-        queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                mRenderer.setBlocks(block);
-            }
-        });
+//        queueEvent(new Runnable() {
+//            @Override
+//            public void run() {
+//                mRenderer.setBlocks(block);
+//            }
+//        });
+
+        mRenderer.setBlocks(block);
+        requestRender();
+
+        Log.d(TAG, "block sent");
     }
 }
