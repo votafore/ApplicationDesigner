@@ -103,7 +103,7 @@ public class OpenGLRenderer implements Renderer{
 
         angle = ((this.deltaX % 25) / 25)  *  2 * 3.1415926f;
 
-        eyeY = 1.0f;
+        eyeY = 1.2f;
         eyeX = (float) (Math.cos(angle) * radius);
         eyeZ = (float) (Math.sin(angle) * radius);
 
@@ -165,7 +165,7 @@ public class OpenGLRenderer implements Renderer{
         float bottom = -1;
         float top = 1;
         float near = 1;
-        float far = 16;
+        float far = 12;
         if (width > height) {
             ratio = (float) width / height;
             left *= ratio;

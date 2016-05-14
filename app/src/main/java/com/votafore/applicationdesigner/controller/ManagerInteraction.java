@@ -20,13 +20,11 @@ public class ManagerInteraction {
         mConnections = new ArrayList<>();
     }
 
-    public Connection createConnection(Block block1, Block block2){
+    public void createConnection(Block block1, Block block2){
 
         Connection conn = new Connection(block1, block2);
 
         mConnections.add(conn);
-
-        return conn;
     }
 
 
@@ -42,7 +40,7 @@ public class ManagerInteraction {
     /**
      * класс хранит информацию о взаимощействии между двумя блоками
      * пока что здесь хранятся ссылки на связанные объекты
-     * позже надо будет хранить информацию самом взаимодействии:
+     * позже надо будет хранить информацию о самом взаимодействии:
      * - какие шаги выполняются
      * - как
      * - направление вызовов

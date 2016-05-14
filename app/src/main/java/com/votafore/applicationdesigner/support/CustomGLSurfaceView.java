@@ -3,10 +3,8 @@ package com.votafore.applicationdesigner.support;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
-import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
 
 import com.votafore.applicationdesigner.controller.ProjectManager;
@@ -16,7 +14,6 @@ import com.votafore.applicationdesigner.model.Block;
 public class CustomGLSurfaceView extends GLSurfaceView{
 
     String TAG = "MyEvent";
-
 
 
     Context mContext;
@@ -47,12 +44,14 @@ public class CustomGLSurfaceView extends GLSurfaceView{
     public boolean onTouchEvent(final MotionEvent event) {
         super.onTouchEvent(event);
 
-        queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                mRenderer.onTouchEvent(event);
-            }
-        });
+//        queueEvent(new Runnable() {
+//            @Override
+//            public void run() {
+//                mRenderer.onTouchEvent(event);
+//            }
+//        });
+
+        mRenderer.onTouchEvent(event);
 
         boolean result = true;
 
@@ -74,6 +73,7 @@ public class CustomGLSurfaceView extends GLSurfaceView{
 //        });
 
         mRenderer.setBlocks(block);
+
         requestRender();
 
         Log.d(TAG, "block sent");

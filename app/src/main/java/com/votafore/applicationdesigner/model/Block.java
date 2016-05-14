@@ -2,6 +2,8 @@ package com.votafore.applicationdesigner.model;
 
 import android.opengl.Matrix;
 
+import com.votafore.applicationdesigner.support.BlockPlacement;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,9 @@ public class Block {
 
         Matrix.setIdentityM(mTranslateMatrix, 0);
         Matrix.setIdentityM(mResultTranslateMatrix, 0);
+
+        mRelativeWidth = 1.0f;
+        mRelativeHeight = 1.0f;
     }
 
 
@@ -42,7 +47,7 @@ public class Block {
     public void addChild(Block child){
 
         child.setParent(this);
-        child.setOrientation(mPlane);
+        //child.setOrientation(mPlane);
         mChilds.add(child);
     }
 
@@ -111,10 +116,7 @@ public class Block {
 
             Plane parentPlane = mParent.getPlane();
 
-            if(parentPlane == Plane.X)
-                newPlane = parentPlane;
-
-            if (parentPlane == Plane.Z)
+            if(parentPlane == Plane.X  || parentPlane == Plane.Z)
                 newPlane = parentPlane;
         }
 
@@ -122,6 +124,14 @@ public class Block {
         // потомки могут иметь только вертикальное расположение
 
         mPlane = newPlane;
+
+        if(mPlane != Plane.Y){
+
+            for(Block curBlock: mChilds){
+
+                curBlock.setOrientation(mPlane);
+            }
+        }
     }
 
     public Plane getPlane(){
@@ -134,8 +144,8 @@ public class Block {
      * в зависимости от уровня вложенности и настроек размера относительно родителя,
      * но размер не может быть меньше чем минимальный
      */
-    float mWidth;
-    float mHeight;
+    float mWidth = 0.0f;
+    float mHeight = 0.0f;
 
     public void setSize(float width, float height){
 
@@ -176,7 +186,20 @@ public class Block {
         mColor = newColor;
     }
 
+    /**
+     * mPlacement. Интерфейс, который определяет (реализует) расположение
+     * подчиненных блоков внутри текущего (вертикальное, горизонтальное или таблица... или еще как-то...)
+     */
 
+    BlockPlacement mPlacement;
+
+    public void setPlacement(BlockPlacement placement){
+        mPlacement = placement;
+    }
+
+    public BlockPlacement getPlacement(){
+        return mPlacement;
+    }
 
 
 
@@ -260,6 +283,14 @@ public class Block {
         float top;
 
 
+        // установим относительные размеры в случае необходимости
+        // они устанавливаются ТОЛЬКО если ширина и высота не заданы или установлены в 0
+        if((mWidth == 0.0f) && (mParent != null))
+            mWidth = mParent.getWidth() * mRelativeWidth;
+
+        if((mHeight == 0.0f) && (mParent != null))
+            mHeight = mParent.getHeight() * mRelativeHeight;
+
         // считаем что центр объекта находится посредине,
         // поэтому расчет координат такой:
         right = Math.max(mMinWidth, mWidth)/2*-1;
@@ -281,8 +312,26 @@ public class Block {
 
         Matrix.setIdentityM(matrix, 0);
 
+        // если расположение объекта вычисляется автоматически
+        // в смысле если у родителя установлен mPlacement который расчитывает положение текущего объекта
+        // то корректируем mResultTranslateMatrix
+        // а именно: устанавливаем (добавляем, корректируем) координаты.
+        if(mParent != null){
+
+            BlockPlacement placement = mParent.getPlacement();
+
+            if(placement != null){
+                float[] point = placement.getPoint(this);
+
+                Matrix.translateM(mResultTranslateMatrix, 0, point[0], point[1], point[2]);
+            }
+        }
+
         // если установлена матрица перемещения, то надо ее применить
-        Matrix.multiplyMM(matrix, 0, matrix, 0, mResultTranslateMatrix, 0);
+        // тут есть ньюанс...
+        // ЭТО умножение (применение матрицы перемещения) (которое после расположения в нужной плоскости) выполняем если объект ЛЕЖИТ
+        if(mPlane == Plane.Y)
+            Matrix.multiplyMM(matrix, 0, matrix, 0, mResultTranslateMatrix, 0);
 
         // матрицы поворота в обратном порядке
         if(mPlane == Plane.Z){
@@ -290,10 +339,14 @@ public class Block {
             Matrix.rotateM(matrix, 0, 90, 0, 1, 0);
         }
 
-        if(mPlane == Plane.X||mPlane == Plane.Z){
+        if(mPlane == Plane.X || mPlane == Plane.Z){
             // подъем объекта с лежачего положения (поворот по X)
             Matrix.rotateM(matrix, 0, 90, 1, 0, 0);
         }
+
+        // выполняем перемещение объекта если он СТОИТ
+        if(mPlane != Plane.Y)
+            Matrix.multiplyMM(matrix, 0, matrix, 0, mResultTranslateMatrix, 0);
 
         Matrix.multiplyMV(vector1, 0, matrix, 0, vector1, 0);
         Matrix.multiplyMV(vector2, 0, matrix, 0, vector2, 0);
@@ -306,6 +359,15 @@ public class Block {
                 vector3[0], vector3[1], vector3[2], mColor[0], mColor[1], mColor[2], mColor[3],
                 vector4[0], vector4[1], vector4[2], mColor[0], mColor[1], mColor[2], mColor[3]
         };
+
+
+
+        // рекурсивный вызов расчета в подчиненных объектах
+        for(Block curBlock: mChilds){
+
+            curBlock.initVertices();
+        }
+
     }
 
     /**
