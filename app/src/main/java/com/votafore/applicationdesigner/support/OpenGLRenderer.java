@@ -125,11 +125,11 @@ public class OpenGLRenderer implements Renderer{
     @Override
     public void onSurfaceCreated(GL10 arg0, EGLConfig arg1) {
         glClearColor(0.5f, 0.5f, 0.5f, 1f);
-        //GLES20.glEnable(GL_DEPTH_TEST);
-        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
+        //glDisable(GL_DEPTH_TEST);
 
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//        glEnable(GL_BLEND);
+//        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         int vertexShaderId      = ShaderUtils.createShader(context, GL_VERTEX_SHADER   , R.raw.vertex_shader);
         int fragmentShaderId    = ShaderUtils.createShader(context, GL_FRAGMENT_SHADER , R.raw.fragment_shader);

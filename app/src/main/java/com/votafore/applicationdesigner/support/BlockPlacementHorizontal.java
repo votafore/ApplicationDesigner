@@ -21,13 +21,13 @@ public class BlockPlacementHorizontal extends BlockPlacement {
     }
 
     @Override
-    protected float[] calculatePoint(float[] result, int index, int childCount, float space) {
+    protected float[] calculatePoint(float[] result, int index, int childCount) {
 
         float width = mBlock.getWidth();
 
-        float widthSpace = (width*(1f - space*2)) / childCount;
+        float widthSpace = (width*(1f - Block.SPACE*2)) / childCount;
 
-        result[0] = width/2 + space + index*widthSpace + widthSpace/2;
+        result[0] = width/2 - Block.SPACE - index*widthSpace - widthSpace/2;
 
         return result;
     }

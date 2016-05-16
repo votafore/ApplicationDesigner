@@ -90,158 +90,83 @@ public class ProjectManager {
              */
 
             // ########################### СОЗДАНИЕ ОБЪЕКТОВ ##############
+            float width = 0.9f;
+            float height = 0.15f;
+
             Block rootBlock = new Block();
-            rootBlock.setColor(new float[]{1.0f, 1.0f, 0.0f, 0.6f});
-            rootBlock.setSize(1.0f, 0.6f);
+            rootBlock.setColor(new float[]{1.0f, 1.0f, 0.0f, 0});
+            rootBlock.setSize(0,0);
 
-            Block b1 = new Block();
-            b1.setColor(new float[]{1, 0, 0, 0.6f});
-            b1.setRelativeHeight(0.9f);
-            b1.setRelativeWidth(0.2f);
+            Block UI = new Block();
+            UI.setColor(new float[]{0.0f, 1.0f, 0.0f, 0.6f});
+            UI.setSize(1.0f, 0.6f);
 
-            Block b2 = new Block();
-            b2.setColor(new float[]{0, 0, 1, 0.6f});
-            b2.setRelativeHeight(0.9f);
-            b2.setRelativeWidth(0.2f);
+            Block mainActivity = new Block();
+            mainActivity.setColor(new float[]{0.0f, 0.0f, 1.0f, 0.5f});
+            mainActivity.setSize(0.3f, 0.5f);
 
-            Block b3 = new Block();
-            b3.setColor(new float[]{0, 0.2f, 1, 0.6f});
-            b3.setRelativeHeight(0.9f);
-            b3.setRelativeWidth(0.2f);
+            Block recyclView = new Block();
+            recyclView.setColor(new float[]{0.4f,0.2f,0.7f,1.0f});
+            recyclView.setSize(0.26f, 0.4f);
 
+            Block functionality = new Block();
+            functionality.setColor(new float[]{1.0f, 1.0f, 0.0f, 0});
+            functionality.setSize(0.0f, 0.0f);
+
+            Block manager = new Block();
+            manager.setColor(new float[]{0.5f, 0.0f, 1.0f, 0.5f});
+            manager.setSize(0.6f, 0.4f);
+
+            Block dataBase = new Block();
+            dataBase.setColor(new float[]{0.5f, 1.0f, 1.0f, 1.0f});
+            dataBase.setSize(0.6f, 0.4f);
 
             // ########################### РАСПОЛОЖЕНИЕ В ДЕРЕВЕ ##############
-            rootBlock.addChild(b1);
-            rootBlock.addChild(b2);
-            rootBlock.addChild(b3);
+            rootBlock.addChild(UI);
+                UI.addChild(mainActivity);
+//                    mainActivity.addChild(recyclView);
+
+//            rootBlock.addChild(functionality);
+//                functionality.addChild(manager);
+//                functionality.addChild(dataBase);
 
 
 
             // ########################### НАСТРОЙКА ОБЪЕКТОВ ##############
 
-            rootBlock.setOrientation(Block.Plane.Y);
-
-            translation = b1.getTranslateMatrix();
-            Matrix.translateM(translation, 0, 0, 0.01f, 0);
-            b1.setTranslateMatrix(translation);
-
-            translation = b2.getTranslateMatrix();
-            Matrix.translateM(translation, 0, 0.0f, 0.01f, 0);
-            b2.setTranslateMatrix(translation);
-
-            translation = b3.getTranslateMatrix();
-            Matrix.translateM(translation, 0, 0.0f, 0.01f, 0);
-            b3.setTranslateMatrix(translation);
+            //rootBlock.setOrientation(Block.Plane.Y);
+            mainActivity.setOrientation(Block.Plane.X);
 
 
-            BlockPlacementHorizontal.setPlacement(rootBlock);
+
+
+            translation = UI.getTranslateMatrix();
+            Matrix.translateM(translation, 0, 0, 0, 1);
+            UI.setTranslateMatrix(translation);
+
+            translation = mainActivity.getTranslateMatrix();
+            //Matrix.translateM(translation, 0, 0.2f, 0, 0);
+            mainActivity.setTranslateMatrix(translation);
+
+//            translation = recyclView.getTranslateMatrix();
+//            Matrix.translateM(translation, 0, 0, 0.05f, 0);
+//            recyclView.setTranslateMatrix(translation);
+
+//            translation = manager.getTranslateMatrix();
+//            Matrix.translateM(translation, 0, (float)(manager.getWidth()+0.1), 0.0f, -0.2f);
+//            manager.setTranslateMatrix(translation);
+
+//            translation = dataBase.getTranslateMatrix();
+//            Matrix.translateM(translation, 0, (float)(dataBase.getWidth()+0.1), 0.0f, -0.7f);
+//            dataBase.setTranslateMatrix(translation);
+
+            //BlockPlacementVertical.setPlacement(rootBlock);
 
 
 
 
             rootBlock.initVertices();
 
-            //publishProgress((count / countAll) * 100);
-
-
-//            Block UI = new Block();
-//            rootBlock.addChild(UI);
-//
-//            ++count;
-//
-//            translation = UI.getTranslateMatrix();
-//            Matrix.translateM(translation, 0, 0.0f, 0.3f, 0.5f);
-//            UI.setTranslateMatrix(translation);
-//
-//            UI.setColor(new float[]{0.0f, 1.0f, 0.0f, 0.6f});
-//            UI.setSize(1.0f, 0.6f);
-//            UI.setOrientation(Block.Plane.Y);
-//            UI.initVertices();
-//
-//            publishProgress((count / countAll) * 100);
-//
-//
-//            Block functionality = new Block();
-//            rootBlock.addChild(functionality);
-//
-//            ++count;
-//
-//            functionality.setSize(0.0f, 0.0f);
-//            functionality.setOrientation(Block.Plane.Y);
-//            functionality.initVertices();
-//
-//            publishProgress((count / countAll) * 100);
-//
-//
-//
-//
-//
-//            Block mainActivity = new Block();
-//            UI.addChild(mainActivity);
-//
-//            ++count;
-//
-//            mainActivity.setColor(new float[]{0.0f, 0.0f, 1.0f, 0.5f});
-//            mainActivity.setSize(0.4f, 0.6f);
-//
-//            translation = mainActivity.getTranslateMatrix();
-//            Matrix.translateM(translation, 0, 0.2f, mainActivity.getHeight()/2, 0.0f);
-//            mainActivity.setTranslateMatrix(translation);
-//
-//            mainActivity.setOrientation(Block.Plane.X);
-//            mainActivity.initVertices();
-//
-//            publishProgress((count / countAll) * 100);
-//
-//
-//
-//
-//            Block recyclView = new Block();
-//            mainActivity.addChild(recyclView);
-//
-//            recyclView.setColor(new float[]{0.4f,0.2f,0.7f,1.0f});
-//            recyclView.setSize(0.3f, 0.5f);
-//
-//            translation = recyclView.getTranslateMatrix();
-//            Matrix.translateM(translation, 0, 0.0f, 0.0f, -0.05f);
-//            recyclView.setTranslateMatrix(translation);
-//
-//            recyclView.initVertices();
-//
-//
-//
-//            Block manager = new Block();
-//            functionality.addChild(manager);
-//
-//            ++count;
-//
-//            manager.setColor(new float[]{0.5f, 0.0f, 1.0f, 0.5f});
-//            manager.setSize(0.6f, 0.4f);
-//
-//            translation = manager.getTranslateMatrix();
-//            Matrix.translateM(translation, 0, (float)(manager.getWidth()+0.1), 0.0f, -0.2f);
-//            manager.setTranslateMatrix(translation);
-//
-//            manager.setOrientation(Block.Plane.Y);
-//            manager.initVertices();
-//
-//            publishProgress((count / countAll) * 100);
-//
-//
-//
-//
-//            Block dataBase = new Block();
-//            functionality.addChild(dataBase);
-//
-//            dataBase.setColor(new float[]{0.5f, 1.0f, 1.0f, 1.0f});
-//            dataBase.setSize(0.6f, 0.4f);
-//
-//            translation = dataBase.getTranslateMatrix();
-//            Matrix.translateM(translation, 0, (float)(dataBase.getWidth()+0.1), 0.0f, -0.7f);
-//            dataBase.setTranslateMatrix(translation);
-//
-//            dataBase.setOrientation(Block.Plane.Y);
-//            dataBase.initVertices();
 //
 //            // установим связи между блоками
 //            mInterManager.createConnection(recyclView, manager);

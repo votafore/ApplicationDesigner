@@ -1,5 +1,6 @@
 package com.votafore.applicationdesigner.model;
 
+import android.graphics.Point;
 import android.opengl.Matrix;
 
 import com.votafore.applicationdesigner.support.BlockPlacement;
@@ -80,6 +81,10 @@ public class Block {
      */
 
 
+    /**
+     * SPACE определяет размер отступа от края (если необходим)
+     */
+    public static float SPACE = 0.02f;
 
     /**
      * mMinWidth и mMinHeight. Ширина и высота вложенных (подчиненных объектов) уменьшается
@@ -202,6 +207,23 @@ public class Block {
     }
 
 
+    /**
+     * mPointInRelativeMatrix определяет относительное местоположение логического
+     * блока на сцене
+     */
+
+    private Point mPointInRelativeMatrix;
+
+    public void setPointInRelativeMatrix(Point point){
+        mPointInRelativeMatrix = point;
+    }
+
+    public Point getPointInRelativeMatrix(){
+        return mPointInRelativeMatrix;
+    }
+
+
+
 
 
 
@@ -238,20 +260,25 @@ public class Block {
     int mMode;
 
     float[] mTranslateMatrix        = new float[16];
-    float[] mResultTranslateMatrix  = new float[16];
+    float[] mResultTranslateMatrix  = new float[16]; // подозреваю что это временная (на время тестов) матрица
 
     public void setTranslateMatrix(float[] newMatrix){
         mTranslateMatrix = newMatrix;
 
-        if(mParent == null){
-            // в случае когда нет родителя учитывать нечего,
-            // поэтому относительная матрица становится непосредственной
-            mResultTranslateMatrix = mTranslateMatrix;
-            return;
-        }
+//        // матрица родителя
+//        float[] mat = new float[16];
+//
+//        // в случае когда нет родителя учитывать нечего,
+//        // поэтому относительная матрица становится непосредственной
+//        Matrix.setIdentityM(mat, 0);
+//
+//        // но если есть родитель, то берем его матрицу
+//        if(mParent != null){
+//            mat = mParent.getResTranslateMatrix();
+//        }
 
         // рассчитаем матрицу перемещения
-        Matrix.multiplyMM(mResultTranslateMatrix, 0, mTranslateMatrix, 0, mParent.getResTranslateMatrix(), 0);
+        //Matrix.multiplyMM(mResultTranslateMatrix, 0, mTranslateMatrix, 0, mat, 0);
     }
 
     public float[] getTranslateMatrix(){
@@ -281,6 +308,7 @@ public class Block {
         // y
         float bottom;
         float top;
+
 
 
         // установим относительные размеры в случае необходимости
@@ -316,6 +344,7 @@ public class Block {
         // в смысле если у родителя установлен mPlacement который расчитывает положение текущего объекта
         // то корректируем mResultTranslateMatrix
         // а именно: устанавливаем (добавляем, корректируем) координаты.
+        // TODO: оказалось что авторазмещение скорее всего не понадобится... но на всяк слчай пока оставляю
         if(mParent != null){
 
             BlockPlacement placement = mParent.getPlacement();
@@ -330,8 +359,14 @@ public class Block {
         // если установлена матрица перемещения, то надо ее применить
         // тут есть ньюанс...
         // ЭТО умножение (применение матрицы перемещения) (которое после расположения в нужной плоскости) выполняем если объект ЛЕЖИТ
-        if(mPlane == Plane.Y)
+        if(mPlane == Plane.Y) {
             Matrix.multiplyMM(matrix, 0, matrix, 0, mResultTranslateMatrix, 0);
+        }else{
+            // объект находится в вертикальной плоскости
+            // для того что бы он не пересекался с родителем его надо поднять на половину высоты
+            Matrix.translateM(matrix, 0, 0, mHeight/2, 0);
+            //Matrix.multiplyMM(matrix, 0, matrix, 0, mResultTranslateMatrix, 0);
+        }
 
         // матрицы поворота в обратном порядке
         if(mPlane == Plane.Z){
@@ -345,8 +380,10 @@ public class Block {
         }
 
         // выполняем перемещение объекта если он СТОИТ
-        if(mPlane != Plane.Y)
+        if(mPlane != Plane.Y){
+
             Matrix.multiplyMM(matrix, 0, matrix, 0, mResultTranslateMatrix, 0);
+        }
 
         Matrix.multiplyMV(vector1, 0, matrix, 0, vector1, 0);
         Matrix.multiplyMV(vector2, 0, matrix, 0, vector2, 0);

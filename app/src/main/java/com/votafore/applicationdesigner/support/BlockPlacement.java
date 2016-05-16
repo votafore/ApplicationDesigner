@@ -22,7 +22,7 @@ public abstract class BlockPlacement {
         mBlock = block;
     }
 
-    protected abstract float[] calculatePoint(float[] result, int index, int childCount, float space);
+    protected abstract float[] calculatePoint(float[] result, int index, int childCount);
 
     /**
      * процедура возвращает координаты указанного блока в родителе
@@ -45,9 +45,6 @@ public abstract class BlockPlacement {
         if (childs.size() == 1)
             return result;
 
-        // размер отступа по краям... может потом уберу, но пока так
-        float space = 0.02f;
-
-        return calculatePoint(result, index, childs.size(), space);
+        return calculatePoint(result, index, childs.size());
     }
 }
