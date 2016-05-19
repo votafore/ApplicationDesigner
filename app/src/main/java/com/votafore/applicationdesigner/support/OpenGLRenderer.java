@@ -131,6 +131,9 @@ public class OpenGLRenderer implements Renderer{
 //        glEnable(GL_BLEND);
 //        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+        if(vertices.length == 0)
+            return;
+
         int vertexShaderId      = ShaderUtils.createShader(context, GL_VERTEX_SHADER   , R.raw.vertex_shader);
         int fragmentShaderId    = ShaderUtils.createShader(context, GL_FRAGMENT_SHADER , R.raw.fragment_shader);
         programId               = ShaderUtils.createProgram(vertexShaderId, fragmentShaderId);
@@ -192,14 +195,24 @@ public class OpenGLRenderer implements Renderer{
         Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, mCenterX, mCenterY, mCenterZ, mUpX, mUpY, mUpZ);
 
         // соединяем матрицы вида и проекции
-        Matrix.multiplyMM(mMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
-        glUniformMatrix4fv(uMatrixLocation, 1, false, mMatrix, 0);
+        float[] mat = new float[16];
+        Matrix.setIdentityM(mat, 0);
 
-        drawBlock(mRootBlock, 0);
+        Matrix.multiplyMM(mat, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+        //glUniformMatrix4fv(uMatrixLocation, 1, false, mMatrix, 0);
+
+        drawBlock(mRootBlock, 0, mat);
     }
 
 
-    private int drawBlock(Block block, int counter){
+    private int drawBlock(Block block, int counter, float[] matrix){
+
+        float[] curMatrix = new float[16];
+        Matrix.setIdentityM(curMatrix, 0);
+
+        Matrix.multiplyMM(curMatrix, 0, matrix, 0, block.getTranslateMatrix(), 0);
+
+        glUniformMatrix4fv(uMatrixLocation, 1, false, curMatrix, 0);
 
         glDrawArrays(block.getMode(), counter, block.getVertexCount());
 
@@ -208,7 +221,7 @@ public class OpenGLRenderer implements Renderer{
         List<Block> childs = block.getChilds();
         for(Block curBlock: childs){
 
-            counter = drawBlock(curBlock, counter);
+            counter = drawBlock(curBlock, counter, curMatrix);
         }
 
         return counter;

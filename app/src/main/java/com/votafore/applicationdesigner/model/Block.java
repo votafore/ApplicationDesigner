@@ -26,6 +26,8 @@ public class Block {
 
         mRelativeWidth = 1.0f;
         mRelativeHeight = 1.0f;
+
+        mPlane = Plane.Y;
     }
 
 
@@ -62,8 +64,6 @@ public class Block {
 
     public void setParent(Block parent){
         mParent = parent;
-        // рассчитаем матрицу перемещения
-        Matrix.multiplyMM(mResultTranslateMatrix, 0, mTranslateMatrix, 0, mParent.getResTranslateMatrix(), 0);
     }
 
 
@@ -106,37 +106,39 @@ public class Block {
         Z
     }
 
-    Plane mPlane = Plane.Y;
+    Plane mPlane;
 
     public void setOrientation(Plane plane){
 
         //  по умолчанию предполагается что будет установлена переданная плоскость
-        Plane newPlane = plane;
+        //Plane newPlane = plane;
 
-        // но если есть родитель, то проверяем его плоскость
-        if(mParent != null){
-
-            // если это вертикальная плоскость
-            // то потомки могут быть только в этой же плоскости
-
-            Plane parentPlane = mParent.getPlane();
-
-            if(parentPlane == Plane.X  || parentPlane == Plane.Z)
-                newPlane = parentPlane;
-        }
+//        // но если есть родитель, то проверяем его плоскость
+//        if(mParent != null){
+//
+//            // если это вертикальная плоскость
+//            // то потомки могут быть только в этой же плоскости
+//
+//            Plane parentPlane = mParent.getPlane();
+//
+//            if(parentPlane != Plane.Y)
+//                newPlane = parentPlane;
+//        }
 
         // для объектов, расположенных вертикально
         // потомки могут иметь только вертикальное расположение
 
-        mPlane = newPlane;
+//        mPlane = newPlane;
+//
+//        if(mPlane != Plane.Y){
+//
+//            for(Block curBlock: mChilds){
+//
+//                curBlock.setOrientation(mPlane);
+//            }
+//        }
 
-        if(mPlane != Plane.Y){
-
-            for(Block curBlock: mChilds){
-
-                curBlock.setOrientation(mPlane);
-            }
-        }
+        mPlane = plane;
     }
 
     public Plane getPlane(){
@@ -175,10 +177,12 @@ public class Block {
     float mRelativeHeight;
 
     public void setRelativeWidth(float width){
+
         mRelativeWidth = width;
     }
 
     public void setRelativeHeight(float height){
+
         mRelativeHeight = height;
     }
 
@@ -264,21 +268,6 @@ public class Block {
 
     public void setTranslateMatrix(float[] newMatrix){
         mTranslateMatrix = newMatrix;
-
-//        // матрица родителя
-//        float[] mat = new float[16];
-//
-//        // в случае когда нет родителя учитывать нечего,
-//        // поэтому относительная матрица становится непосредственной
-//        Matrix.setIdentityM(mat, 0);
-//
-//        // но если есть родитель, то берем его матрицу
-//        if(mParent != null){
-//            mat = mParent.getResTranslateMatrix();
-//        }
-
-        // рассчитаем матрицу перемещения
-        //Matrix.multiplyMM(mResultTranslateMatrix, 0, mTranslateMatrix, 0, mat, 0);
     }
 
     public float[] getTranslateMatrix(){
@@ -299,17 +288,7 @@ public class Block {
     /**
      * функция, в которой будет создаваться массив с координатами вершин
      */
-    public void initVertices() {
-
-        // x
-        float right;
-        float left;
-
-        // y
-        float bottom;
-        float top;
-
-
+    public float[] initVertices() {
 
         // установим относительные размеры в случае необходимости
         // они устанавливаются ТОЛЬКО если ширина и высота не заданы или установлены в 0
@@ -319,84 +298,6 @@ public class Block {
         if((mHeight == 0.0f) && (mParent != null))
             mHeight = mParent.getHeight() * mRelativeHeight;
 
-        // считаем что центр объекта находится посредине,
-        // поэтому расчет координат такой:
-        right = Math.max(mMinWidth, mWidth)/2*-1;
-        left = right*-1;
-
-        bottom = Math.max(mMinHeight, mHeight)/2*-1;
-        top = bottom*-1;
-
-        float[] vector1 = {right, 0.0f, top, 1.0f};
-        float[] vector2 = {left, 0.0f, top, 1.0f};
-        float[] vector3 = {right, 0.0f, bottom, 1.0f};
-        float[] vector4 = {left, 0.0f, bottom, 1.0f};
-
-        // объект сейчас лежит
-        // надо проверить должен ли он таким остаться и если нет,
-        // то сделать необходимые вычисления
-
-        float[] matrix = new float[16];
-
-        Matrix.setIdentityM(matrix, 0);
-
-        // если расположение объекта вычисляется автоматически
-        // в смысле если у родителя установлен mPlacement который расчитывает положение текущего объекта
-        // то корректируем mResultTranslateMatrix
-        // а именно: устанавливаем (добавляем, корректируем) координаты.
-        // TODO: оказалось что авторазмещение скорее всего не понадобится... но на всяк слчай пока оставляю
-        if(mParent != null){
-
-            BlockPlacement placement = mParent.getPlacement();
-
-            if(placement != null){
-                float[] point = placement.getPoint(this);
-
-                Matrix.translateM(mResultTranslateMatrix, 0, point[0], point[1], point[2]);
-            }
-        }
-
-        // если установлена матрица перемещения, то надо ее применить
-        // тут есть ньюанс...
-        // ЭТО умножение (применение матрицы перемещения) (которое после расположения в нужной плоскости) выполняем если объект ЛЕЖИТ
-        if(mPlane == Plane.Y) {
-            Matrix.multiplyMM(matrix, 0, matrix, 0, mResultTranslateMatrix, 0);
-        }else{
-            // объект находится в вертикальной плоскости
-            // для того что бы он не пересекался с родителем его надо поднять на половину высоты
-            Matrix.translateM(matrix, 0, 0, mHeight/2, 0);
-            //Matrix.multiplyMM(matrix, 0, matrix, 0, mResultTranslateMatrix, 0);
-        }
-
-        // матрицы поворота в обратном порядке
-        if(mPlane == Plane.Z){
-            // доп поворт по оси Y
-            Matrix.rotateM(matrix, 0, 90, 0, 1, 0);
-        }
-
-        if(mPlane == Plane.X || mPlane == Plane.Z){
-            // подъем объекта с лежачего положения (поворот по X)
-            Matrix.rotateM(matrix, 0, 90, 1, 0, 0);
-        }
-
-        // выполняем перемещение объекта если он СТОИТ
-        if(mPlane != Plane.Y){
-
-            Matrix.multiplyMM(matrix, 0, matrix, 0, mResultTranslateMatrix, 0);
-        }
-
-        Matrix.multiplyMV(vector1, 0, matrix, 0, vector1, 0);
-        Matrix.multiplyMV(vector2, 0, matrix, 0, vector2, 0);
-        Matrix.multiplyMV(vector3, 0, matrix, 0, vector3, 0);
-        Matrix.multiplyMV(vector4, 0, matrix, 0, vector4, 0);
-
-        mVertices = new float[]{
-                vector1[0], vector1[1], vector1[2], mColor[0], mColor[1], mColor[2], mColor[3],
-                vector2[0], vector2[1], vector2[2], mColor[0], mColor[1], mColor[2], mColor[3],
-                vector3[0], vector3[1], vector3[2], mColor[0], mColor[1], mColor[2], mColor[3],
-                vector4[0], vector4[1], vector4[2], mColor[0], mColor[1], mColor[2], mColor[3]
-        };
-
 
 
         // рекурсивный вызов расчета в подчиненных объектах
@@ -405,6 +306,34 @@ public class Block {
             curBlock.initVertices();
         }
 
+
+
+
+
+        // считаем что центр объекта находится посредине,
+        // поэтому расчет координат такой:
+
+        // x
+        float right = Math.max(mMinWidth, mWidth)/2*-1;
+        float left = right*-1;
+
+        // y
+        float bottom = Math.max(mMinHeight, mHeight)/2*-1;
+        float top = bottom*-1;
+
+        float[] vector1 = {right, 0.0f, top};
+        float[] vector2 = {left, 0.0f, top};
+        float[] vector3 = {right, 0.0f, bottom};
+        float[] vector4 = {left, 0.0f, bottom};
+
+        mVertices = new float[]{
+                vector1[0], vector1[1], vector1[2], mColor[0], mColor[1], mColor[2], mColor[3],
+                vector2[0], vector2[1], vector2[2], mColor[0], mColor[1], mColor[2], mColor[3],
+                vector3[0], vector3[1], vector3[2], mColor[0], mColor[1], mColor[2], mColor[3],
+                vector4[0], vector4[1], vector4[2], mColor[0], mColor[1], mColor[2], mColor[3]
+        };
+
+        return new float[]{mWidth, mHeight};
     }
 
     /**

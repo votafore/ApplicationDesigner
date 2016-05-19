@@ -7,8 +7,6 @@ import android.util.Log;
 
 import com.votafore.applicationdesigner.model.Block;
 import com.votafore.applicationdesigner.model.DataBase;
-import com.votafore.applicationdesigner.support.BlockPlacementHorizontal;
-import com.votafore.applicationdesigner.support.BlockPlacementVertical;
 import com.votafore.applicationdesigner.support.CustomGLSurfaceView;
 
 import java.util.List;
@@ -96,10 +94,12 @@ public class ProjectManager {
             Block rootBlock = new Block();
             rootBlock.setColor(new float[]{1.0f, 1.0f, 0.0f, 0});
             rootBlock.setSize(0,0);
+            rootBlock.setRelativeWidth(0);
+            rootBlock.setRelativeHeight(0);
 
             Block UI = new Block();
             UI.setColor(new float[]{0.0f, 1.0f, 0.0f, 0.6f});
-            UI.setSize(1.0f, 0.6f);
+            UI.setSize(2, 0.6f);
 
             Block mainActivity = new Block();
             mainActivity.setColor(new float[]{0.0f, 0.0f, 1.0f, 0.5f});
@@ -124,41 +124,43 @@ public class ProjectManager {
             // ########################### РАСПОЛОЖЕНИЕ В ДЕРЕВЕ ##############
             rootBlock.addChild(UI);
                 UI.addChild(mainActivity);
-//                    mainActivity.addChild(recyclView);
+                    mainActivity.addChild(recyclView);
 
-//            rootBlock.addChild(functionality);
-//                functionality.addChild(manager);
-//                functionality.addChild(dataBase);
+            rootBlock.addChild(functionality);
+                functionality.addChild(manager);
+                functionality.addChild(dataBase);
 
 
 
             // ########################### НАСТРОЙКА ОБЪЕКТОВ ##############
 
             //rootBlock.setOrientation(Block.Plane.Y);
-            mainActivity.setOrientation(Block.Plane.X);
+            //mainActivity.setOrientation(Block.Plane.X);
 
 
 
 
             translation = UI.getTranslateMatrix();
-            Matrix.translateM(translation, 0, 0, 0, 1);
+            Matrix.translateM(translation, 0, 0, 0.2f, -0.4f);
             UI.setTranslateMatrix(translation);
 
             translation = mainActivity.getTranslateMatrix();
-            //Matrix.translateM(translation, 0, 0.2f, 0, 0);
+            Matrix.translateM(translation, 0, -0.2f, 0, 0);
+            Matrix.translateM(translation, 0, 0, mainActivity.getHeight()/2, 0);
+            Matrix.rotateM(translation, 0, 90, 1, 0, 0);
             mainActivity.setTranslateMatrix(translation);
 
-//            translation = recyclView.getTranslateMatrix();
-//            Matrix.translateM(translation, 0, 0, 0.05f, 0);
-//            recyclView.setTranslateMatrix(translation);
+            translation = recyclView.getTranslateMatrix();
+            Matrix.translateM(translation, 0, 0, 0.05f, 0);
+            recyclView.setTranslateMatrix(translation);
 
-//            translation = manager.getTranslateMatrix();
-//            Matrix.translateM(translation, 0, (float)(manager.getWidth()+0.1), 0.0f, -0.2f);
-//            manager.setTranslateMatrix(translation);
+            translation = manager.getTranslateMatrix();
+            Matrix.translateM(translation, 0, -(float)(manager.getWidth()+0.1), 0.0f, 0.2f);
+            manager.setTranslateMatrix(translation);
 
-//            translation = dataBase.getTranslateMatrix();
-//            Matrix.translateM(translation, 0, (float)(dataBase.getWidth()+0.1), 0.0f, -0.7f);
-//            dataBase.setTranslateMatrix(translation);
+            translation = dataBase.getTranslateMatrix();
+            Matrix.translateM(translation, 0, -(float)(dataBase.getWidth()+0.1), 0.0f, 0.7f);
+            dataBase.setTranslateMatrix(translation);
 
             //BlockPlacementVertical.setPlacement(rootBlock);
 
